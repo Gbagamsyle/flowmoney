@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "pnpm --filter @flowmoney/web dev",
+    "dev:api": "pnpm --filter @flowmoney/api start:dev",
     "build": "pnpm --filter @flowmoney/web build",
+    "build:api": "pnpm --filter @flowmoney/api build",
     "typecheck": "pnpm --filter @flowmoney/web typecheck"
   },
   "keywords": [],

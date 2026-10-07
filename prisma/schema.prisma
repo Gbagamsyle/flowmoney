@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts       FinancialAccount[]
+  incomeSources  IncomeSource[]
+  expectedIncome ExpectedIncome[]
+  obligations    Obligation[]
+}
+
+model FinancialAccount {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  balance   Decimal  @db.Decimal(18, 2)
+  currency  String   @default("NGN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model IncomeSource {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  type      IncomeSourceType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expectedIncome ExpectedIncome[]
+
+  @@index([userId])
+}
+
+model ExpectedIncome {
+  id           String               @id @default(cuid())
+  userId       String
+  sourceId     String?
+  title        String
+  amount       Decimal              @db.Decimal(18, 2)
+  expectedDate DateTime
+  confidence   IncomeConfidence
+  status       ExpectedIncomeStatus @default(EXPECTED)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source IncomeSource? @relation(fields: [sourceId], references: [id])
+
+  @@index([userId])
+  @@index([expectedDate])
+}
+
+model Obligation {
+  id        String             @id @default(cuid())
+  userId    String
+  title     String
+  amount    Decimal            @db.Decimal(18, 2)
+  dueDate   DateTime
+  priority  ObligationPriority
+  status    ObligationStatus   @default(PENDING)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([dueDate])
+}
+
+enum IncomeSourceType {
+  FREELANCE
+  SALARY
+  CONTRACT
+  CREATOR
+  COMMISSION
+  BUSINESS
+  GIG
+  OTHER
+}
+
+enum IncomeConfidence {
+  CONFIRMED
+  LIKELY
+  UNCERTAIN
+}
+
+enum ExpectedIncomeStatus {
+  EXPECTED
+  RECEIVED
+  PARTIAL
+  DELAYED
+  CANCELLED
+}
+
+enum ObligationPriority {
+  ESSENTIAL
+  IMPORTANT
+  FLEXIBLE
+  OPTIONAL
+}
+
+enum ObligationStatus {
+  PENDING
+  FUNDED
+  PAID
+  SKIPPED
+}
