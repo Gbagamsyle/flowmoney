@@ -4,9 +4,9 @@
 
 FlowMoney is a cash-flow planning application for freelancers, contractors, creators, and independent professionals with irregular income. It is designed to bring current funds, expected payments, upcoming obligations, and protected money into one understandable financial picture.
 
-FlowMoney is non-custodial: it does not hold, transfer, or invest user funds. The MVP begins with manual financial data entry.
+FlowMoney is intended to be non-custodial: it will not hold, transfer, or invest user funds. The MVP is planned to begin with manual financial data entry.
 
-**Status:** early development. The repository contains a web application scaffold, initial API modules, a database model, and calculation helpers. Authentication, onboarding, and the full planning experience are still being developed.
+**Status:** early development. The web app now includes a responsive waitlist landing page with local email validation, but the form is an unconnected UI preview: it does not submit or save email addresses. The `/signin` and `/signup` routes are placeholders that render no page content; authentication is not implemented. Initial API modules, a database model, and calculation helpers are also present, while onboarding and the full planning experience remain in development.
 
 ## Product direction
 
@@ -44,7 +44,7 @@ Bank aggregation, money transfers, lending, investments, tax filing, and full ac
 | Area | Current repository choice |
 | --- | --- |
 | Web application | Next.js App Router, React, TypeScript |
-| Styling and components | Tailwind CSS, shared UI package, shadcn/ui configuration |
+| Styling, components, and icons | Tailwind CSS, shared UI package, shadcn/ui configuration, Lucide React |
 | API | NestJS, TypeScript |
 | Database | PostgreSQL through Prisma |
 | Financial logic | Shared `@flowmoney/calculations` package |
@@ -60,8 +60,12 @@ Authentication is not yet integrated in the inspected scaffold. The `User` model
 
 | Location | Responsibility |
 | --- | --- |
-| `apps/web/app/` | Web routes and layouts |
-| `apps/web/components/` | Web-specific components |
+| `apps/web/app/` | Web routes and layouts; `/` is the waitlist landing page, while `/signin` and `/signup` are empty placeholders |
+| `apps/web/components/` | Web-specific components and theme provider |
+| `apps/web/components/brand/` | FlowMoney logo and landing-page illustration components |
+| `apps/web/components/layout/` | Landing-page header and footer |
+| `apps/web/components/landing/` | Waitlist form preview and three-benefit feature strip |
+| `apps/web/public/images/` | `flowmoney-logo.png` and `flowmoney-hero.png`, used by the landing page |
 | `apps/api/src/` | API modules for accounts, income, obligations, and dashboard data |
 | `apps/api/src/common/prisma/` | Prisma service and module |
 | `packages/ui/` | Shared components, utilities, and styles |
@@ -98,7 +102,7 @@ Run workspace commands from the repository root. If you already cloned the proje
 pnpm dev
 ```
 
-Open the address printed in the terminal, normally `http://localhost:3000`. The initial page displays “FlowMoney is ready.” The current scaffold page can be viewed without running the API.
+Open the address printed in the terminal, normally `http://localhost:3000`. The home page displays the FlowMoney waitlist landing page and can be viewed without running the API. Its email field validates locally and displays a preview status; there is no waitlist submission endpoint or email persistence.
 
 ### Configure and start the API
 
@@ -163,7 +167,7 @@ The root build and type-check scripts target the web workspace; they do not veri
 
 | Area | Current state | Next work |
 | --- | --- | --- |
-| Web | Scaffold page and shared UI integration | Landing, sign-up, sign-in, welcome, and currency setup |
+| Web | Responsive waitlist landing page with header, hero artwork, benefit strip, locally validated but unconnected email form, and footer. `/signin` and `/signup` exist as empty route placeholders; authentication is not implemented. | Connect waitlist submission to an agreed backend contract; implement sign-up and sign-in, then onboarding, welcome, and currency setup |
 | API | Initial accounts, expected-income, obligations, and dashboard modules | Authentication, request validation, ownership enforcement, and complete workflows |
 | Database | User, account, income-source, expected-income, and obligation models | Align onboarding, currency, protection, recurrence, and scenarios with the PRD |
 | Calculations | Current-funds and initial Safe-to-Spend helpers | Specify and test decimal arithmetic, protection, runway, allocations, and scenarios |
