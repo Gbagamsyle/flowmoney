@@ -1,18 +1,30 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import { Button } from "@flowmoney/ui/components/button";
 
-export default function Home() {
+export default async function Home() {
+  const { userId } = await auth();
+
+  if (userId) {
+    redirect("/dashboard");
+  }
+
   return (
     <main className="flex min-h-svh items-center justify-center p-6">
       <section className="flex max-w-md flex-col gap-4 text-sm leading-relaxed">
         <div>
           <h1 className="font-medium">FlowMoney is ready</h1>
           <p className="text-muted-foreground">
-            Your Next.js app and shared component workspace are connected.
+            Track your current funds, upcoming income, and protected obligations in
+            one place.
           </p>
-          <Button className="mt-4">Get started</Button>
+          <Link href="/sign-up" className="mt-4 inline-block">
+            <Button>Get started</Button>
+          </Link>
         </div>
         <p className="text-muted-foreground font-mono text-xs">
-          Press <kbd>d</kbd> to toggle dark mode.
+          Already have an account? <Link href="/sign-in" className="underline">Sign in</Link>
         </p>
       </section>
     </main>

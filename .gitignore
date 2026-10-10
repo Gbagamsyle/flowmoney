@@ -15,6 +15,23 @@ dist/
 .env
 .env.*
 !.env.example
+!.env.*.example
+
+# Secret keys and credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_ed25519
+id_ecdsa
+id_dsa
+*service-account*.json
+*credentials*.json
+secrets/
+**/.clerk/.tmp/
 
 # Logs
 *.log
@@ -24,3 +41,4 @@ pnpm-debug.log*
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json

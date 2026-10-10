@@ -1,23 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service.js';
+import { UsersService } from '../users/users.service.js';
 import { calculateSafeToSpend } from '@flowmoney/calculations';
 
 @Injectable()
 export class DashboardService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly usersService: UsersService,
+  ) {}
 
   async getDashboard(userId: string) {
+    const user = await this.usersService.findByClerkId(userId);
+    if (!user) {
+      return {
+        userId,
+        currentFunds: 0,
+        pendingIncome: 0,
+        protectedObligations: 0,
+        minimumBuffer: 0,
+        safeToSpend: 0,
+        accounts: [],
+        expectedIncome: [],
+        obligations: [],
+      };
+    }
+
     const [accounts, expectedIncome, obligations] = (await Promise.all([
       this.prisma.financialAccount.findMany({
-        where: { userId },
+        where: { userId: user.id },
         orderBy: { createdAt: 'asc' },
       }),
       this.prisma.expectedIncome.findMany({
-        where: { userId },
+        where: { userId: user.id },
         orderBy: { expectedDate: 'asc' },
       }),
       this.prisma.obligation.findMany({
-        where: { userId },
+        where: { userId: user.id },
         orderBy: { dueDate: 'asc' },
       }),
     ])) as [
