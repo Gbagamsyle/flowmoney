@@ -5,7 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm --filter @flowmoney/web dev",
+    "dev": "concurrently -k \"pnpm run dev:api\" \"pnpm run dev:web\"",
+    "dev:web": "pnpm --filter @flowmoney/web dev",
     "dev:api": "pnpm --filter @flowmoney/api start:dev",
     "build": "pnpm --filter @flowmoney/web build",
     "build:api": "pnpm --filter @flowmoney/api build",
@@ -22,5 +23,8 @@
     }
   },
   "packageManager": "pnpm@12.4.2",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
 }

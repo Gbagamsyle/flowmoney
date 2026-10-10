@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cn } from "@flowmoney/ui/lib/utils";
 import "@flowmoney/ui/globals.css";
@@ -16,7 +17,9 @@ export default function RootLayout({
       className={cn("antialiased", geistMono.variable, "font-sans", geist.variable)}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

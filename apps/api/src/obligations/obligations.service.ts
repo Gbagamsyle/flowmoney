@@ -1,23 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service.js';
+import { UsersService } from '../users/users.service.js';
 
 @Injectable()
 export class ObligationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly usersService: UsersService,
+  ) {}
 
-  private async ensureDemoUser(userId: string) {
-    return this.prisma.user.upsert({
-      where: { clerkId: userId },
-      update: {},
-      create: {
-        clerkId: userId,
-        email: `${userId}@flowmoney.local`,
-      },
+  private async ensureUser(userId: string) {
+    return this.usersService.getOrCreateForClerk({
+      clerkId: userId,
     });
   }
 
   async list(userId: string) {
-    const user = await this.prisma.user.findUnique({ where: { clerkId: userId } });
+    const user = await this.usersService.findByClerkId(userId);
     if (!user) {
       return [];
     }
@@ -32,7 +31,7 @@ export class ObligationsService {
     userId: string,
     payload: { title: string; amount: number; dueDate: string; priority: string; status?: string },
   ) {
-    const user = await this.ensureDemoUser(userId);
+    const user = await this.ensureUser(userId);
 
     return this.prisma.obligation.create({
       data: {

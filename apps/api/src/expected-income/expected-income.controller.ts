@@ -1,22 +1,39 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { ClerkAuthGuard } from '../common/auth/clerk-auth.guard.js';
 import { ExpectedIncomeService } from './expected-income.service.js';
 
 @Controller('expected-income')
 export class ExpectedIncomeController {
   constructor(private readonly expectedIncomeService: ExpectedIncomeService) {}
 
+  @UseGuards(ClerkAuthGuard)
   @Get()
   async list(@Req() req: { user?: { id?: string } }) {
-    const userId = req.user?.id ?? 'demo-user';
-    return this.expectedIncomeService.list(userId);
+    if (!req.user?.id) {
+      throw new UnauthorizedException();
+    }
+
+    return this.expectedIncomeService.list(req.user.id);
   }
 
+  @UseGuards(ClerkAuthGuard)
   @Post()
   async create(
     @Req() req: { user?: { id?: string } },
     @Body() body: { title: string; amount: number; expectedDate: string; confidence: string; status?: string },
   ) {
-    const userId = req.user?.id ?? 'demo-user';
-    return this.expectedIncomeService.create(userId, body);
+    if (!req.user?.id) {
+      throw new UnauthorizedException();
+    }
+
+    return this.expectedIncomeService.create(req.user.id, body);
   }
 }
