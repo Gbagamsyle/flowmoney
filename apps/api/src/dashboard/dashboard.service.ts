@@ -26,7 +26,7 @@ export class DashboardService {
       };
     }
 
-    const [accounts, expectedIncome, obligations] = (await Promise.all([
+    const [accounts, expectedIncome, obligations] = await Promise.all([
       this.prisma.financialAccount.findMany({
         where: { userId: user.id },
         orderBy: { createdAt: 'asc' },
@@ -39,29 +39,28 @@ export class DashboardService {
         where: { userId: user.id },
         orderBy: { dueDate: 'asc' },
       }),
-    ])) as [
-      Array<{ balance: number | string }>,
-      Array<{ amount: number | string }>,
-      Array<{ status: string; amount: number | string }>,
-    ];
+    ]);
 
-    const currentFunds = accounts.reduce(
-      (sum: number, account: { balance: number | string }) => sum + Number(account.balance),
+    const currentFunds = accounts.reduce<number>(
+      (sum, account) => sum + Number(account.balance),
       0,
     );
 
-    const pendingIncome = expectedIncome.reduce(
-      (sum: number, item: { amount: number | string }) => sum + Number(item.amount),
+    const pendingIncome = expectedIncome.reduce<number>(
+      (sum, item) =>
+        ['EXPECTED', 'PARTIAL', 'DELAYED'].includes(item.status)
+          ? sum + Number(item.amount)
+          : sum,
       0,
     );
 
     const protectedObligations = obligations
       .filter(
-        (obligation: { status: string; amount: number | string }) =>
+        (obligation) =>
           obligation.status !== 'PAID' && obligation.status !== 'SKIPPED',
       )
-      .reduce(
-        (sum: number, obligation: { amount: number | string }) => sum + Number(obligation.amount),
+      .reduce<number>(
+        (sum, obligation) => sum + Number(obligation.amount),
         0,
       );
 

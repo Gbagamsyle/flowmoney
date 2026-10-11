@@ -2,12 +2,19 @@
   "name": "@flowmoney/calculations",
   "version": "1.0.0",
   "private": true,
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
-  "types": "./src/index.ts"
+  "types": "./dist/index.d.ts",
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
 }
