@@ -5,7 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently -k \"pnpm run dev:api\" \"pnpm run dev:web\"",
+    "dev": "pnpm run dev:web",
+    "dev:all": "concurrently \"pnpm run dev:api\" \"pnpm run dev:web\"",
     "dev:web": "pnpm --filter @flowmoney/web dev",
     "dev:api": "pnpm --filter @flowmoney/api start:dev",
     "build": "pnpm --filter @flowmoney/web build",
@@ -25,6 +26,8 @@
   "packageManager": "pnpm@12.4.2",
   "type": "module",
   "devDependencies": {
-    "concurrently": "^10.0.6"
+    "@prisma/client": "^6.19.3",
+    "concurrently": "^10.0.6",
+    "prisma": "^6.19.3"
   }
 }

@@ -6,7 +6,7 @@ FlowMoney is a cash-flow planning application for freelancers, contractors, crea
 
 FlowMoney is non-custodial: it does not hold, transfer, or invest user funds. The MVP begins with manual financial data entry.
 
-**Status:** early development. The repository contains a web application scaffold, initial API modules, a database model, and calculation helpers. Authentication, onboarding, and the full planning experience are still being developed.
+**Status:** early development. The repository contains Clerk authentication, first-time onboarding, current-funds entry, expected-income and obligation APIs, and an initial dashboard. The planning and financial model continue to evolve.
 
 ## Product direction
 
@@ -54,7 +54,7 @@ Bank aggregation, money transfers, lending, investments, tax filing, and full ac
 
 Dependency versions are defined in the package manifests and resolved in `pnpm-lock.yaml`. Use the committed lockfile when installing.
 
-Authentication is not yet integrated in the inspected scaffold. The `User` model includes `clerkId`, indicating an anticipated Clerk integration; confirm the implementation with the team before adding a provider.
+Authentication uses Clerk in the web app and API. API requests verify Clerk bearer tokens and scope financial records to the authenticated local user.
 
 ## Repository structure
 
@@ -92,54 +92,28 @@ pnpm install --frozen-lockfile
 
 Run workspace commands from the repository root. If you already cloned the project, use that checkout rather than creating another application inside it.
 
-### Start the web application
+### Configure the API
+
+The dashboard and onboarding save data through the API. If the API is not running or cannot connect to PostgreSQL, the browser will report that its fetch failed.
+
+Create `apps/api/.env` from the committed `apps/api/.env.example`, then set `DATABASE_URL` to a reachable PostgreSQL database and `CLERK_SECRET_KEY` to the secret for the Clerk instance used by the web app. Keep the actual `.env` file private and never commit it. The API loads this file on startup.
+
+Generate Prisma Client and apply tracked migrations:
+
+```bash
+pnpm exec prisma generate --schema prisma/schema.prisma
+pnpm --filter @flowmoney/api db:migrate:deploy
+```
+
+The migration command requires a reachable database. The migration adds onboarding completion state to `User`.
+
+### Start the application
 
 ```bash
 pnpm dev
 ```
 
-Open the address printed in the terminal, normally `http://localhost:3000`. The initial page displays “FlowMoney is ready.” The current scaffold page can be viewed without running the API.
-
-### Configure and start the API
-
-The API connects to PostgreSQL on startup. It needs a database with the expected schema and a generated Prisma client.
-
-| Variable | Purpose |
-| --- | --- |
-| `DATABASE_URL` | Development PostgreSQL connection string used by Prisma |
-| `PORT` | API listening port; use `3001` when the web application uses `3000` |
-
-The current API bootstrap does not explicitly load a dotenv file. Set these variables in the terminal that runs the API, or use the team's agreed environment-loading setup. Merely creating `.env` is not sufficient to establish that the API will load it.
-
-**PowerShell:**
-
-```powershell
-$env:DATABASE_URL = "postgresql://USER:PASSWORD@localhost:5432/flowmoney?schema=public"
-$env:PORT = "3001"
-pnpm --filter @flowmoney/api db:generate
-pnpm dev:api
-```
-
-**macOS or Linux shell:**
-
-```bash
-export DATABASE_URL='postgresql://USER:PASSWORD@localhost:5432/flowmoney?schema=public'
-export PORT=3001
-pnpm --filter @flowmoney/api db:generate
-pnpm dev:api
-```
-
-Replace the example connection string with your development credentials. `db:generate` generates the Prisma client; it does not create database tables.
-
-For an **empty, disposable local development database**, the repository provides:
-
-```bash
-pnpm --filter @flowmoney/api db:push
-```
-
-Run this after setting `DATABASE_URL` and before starting the API if that local database needs its initial tables. Confirm the destination first. Shared databases need a team-reviewed schema-change process; `db:push` is not a substitute for migration history.
-
-Use `prisma/schema.prisma` as the repository's current database definition. Separately proposed schemas need reconciliation with it before adoption.
+`pnpm dev` starts both the Next.js web app and NestJS API. Open `http://localhost:3000`. New signed-in users are guided through onboarding; returning users go to the dashboard. Configure the Clerk public key for the web app in `apps/web/.env.local` as described by Clerk.
 
 ## Development commands
 
@@ -147,7 +121,7 @@ Run these from the repository root:
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm dev` | Start the web development server |
+| `pnpm dev` | Start the web development server and API together |
 | `pnpm dev:api` | Start the API in watch mode |
 | `pnpm build` | Build the web application |
 | `pnpm build:api` | Build the API |
@@ -155,7 +129,8 @@ Run these from the repository root:
 | `pnpm --filter @flowmoney/api test` | Run API unit tests |
 | `pnpm --filter @flowmoney/api test:e2e` | Run API end-to-end tests |
 | `pnpm --filter @flowmoney/api lint` | Run the API linter |
-| `pnpm --filter @flowmoney/api db:generate` | Generate Prisma Client |
+| `pnpm exec prisma generate --schema prisma/schema.prisma` | Generate Prisma Client from the root schema |
+| `pnpm --filter @flowmoney/api db:migrate:deploy` | Apply tracked Prisma migrations |
 
 The root build and type-check scripts target the web workspace; they do not verify the entire repository. API tests that initialize the database-backed application may require a configured test database. Existing tests do not establish coverage of the complete product.
 
@@ -163,15 +138,15 @@ The root build and type-check scripts target the web workspace; they do not veri
 
 | Area | Current state | Next work |
 | --- | --- | --- |
-| Web | Scaffold page and shared UI integration | Landing, sign-up, sign-in, welcome, and currency setup |
-| API | Initial accounts, expected-income, obligations, and dashboard modules | Authentication, request validation, ownership enforcement, and complete workflows |
-| Database | User, account, income-source, expected-income, and obligation models | Align onboarding, currency, protection, recurrence, and scenarios with the PRD |
+| Web | Clerk auth, onboarding, current funds, income, obligations, and dashboard | Complete product flows and validation feedback |
+| API | Clerk-guarded accounts, expected-income, obligations, dashboard, and user endpoints | Request validation and complete lifecycle workflows |
+| Database | User onboarding timestamp and financial account, income, and obligation models | Align currency, protection, recurrence, and scenarios with the PRD |
 | Calculations | Current-funds and initial Safe-to-Spend helpers | Specify and test decimal arithmetic, protection, runway, allocations, and scenarios |
 | Supporting packages | Domain, validation, and config scaffolds | Establish shared contracts as features are implemented |
 
 The current dashboard uses a provisional 10% buffer. The Safe-to-Spend helper clamps its result to zero and does not yet include protected savings. These behaviors need review against the Flow Engine specification.
 
-Some controllers currently fall back to `demo-user` when an authenticated identity is absent. This is development scaffolding, not production authorization. Do not expose those endpoints with real financial data until authentication and user isolation are implemented and tested.
+API routes handling user financial data require a verified Clerk bearer token. Keep database and Clerk secret credentials in the API's local environment file; never commit them.
 
 ## Contributing
 

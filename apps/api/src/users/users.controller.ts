@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Patch,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -23,5 +24,15 @@ export class UsersController {
       clerkId: req.user.id,
       email: req.user.email,
     });
+  }
+
+  @UseGuards(ClerkAuthGuard)
+  @Patch('me/onboarding')
+  async completeOnboarding(@Req() req: { user?: { id?: string } }) {
+    if (!req.user?.id) {
+      throw new UnauthorizedException();
+    }
+
+    return this.usersService.markOnboardingComplete(req.user.id);
   }
 }
