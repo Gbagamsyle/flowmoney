@@ -1,22 +1,37 @@
 "use client";
 
 import { useAuth, useUser } from "@clerk/nextjs";
-import { ArrowRight, CalendarDays, CircleDollarSign, ListChecks } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarDays, CircleDollarSign, Clock3, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@flowmoney/ui/components/button";
 import { FinancialSummaryCard } from "@/components/dashboard/financial-summary-card";
+import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
 import { formatMoney } from "@/lib/format-money";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 type DashboardSummary = {
   userId: string;
+  preferredCurrency: string;
   currentFunds: number;
   pendingIncome: number;
+  projectedIncome: number;
+  expectedIncomeByConfidence: { CONFIRMED: number; LIKELY: number; UNCERTAIN: number };
   protectedObligations: number;
   minimumBuffer: number;
   safeToSpend: number;
+  projectedPosition: number;
+  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  warnings: Array<{
+    code: string;
+    message: string;
+    severity: "LOW" | "MEDIUM" | "HIGH";
+    amount?: number;
+    obligationId?: string;
+    title?: string;
+    daysLate?: number;
+  }>;
   accounts: Array<{ id: string; name: string; balance: number | string }>;
   expectedIncome: Array<{ id: string; title: string; amount: number | string; expectedDate: string; confidence: string; status: string }>;
   obligations: Array<{ id: string; title: string; amount: number | string; dueDate: string; priority: string; status: string }>;
@@ -24,6 +39,7 @@ type DashboardSummary = {
 
 export default function DashboardPage() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { currency } = usePreferredCurrency();
   const { user } = useUser();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,17 +56,12 @@ export default function DashboardPage() {
     }
 
     try {
-      try {
-        const response = await fetch(`${API_BASE_URL}/dashboard`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Unable to load dashboard");
-        const data = (await response.json()) as DashboardSummary;
-        setSummary(data);
-        setError(null);
-      } catch {
-        setError("Could not load your dashboard right now. Check that the API is running.");
-      }
+      const response = await fetch(`${API_BASE_URL}/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error(`Dashboard request failed (HTTP ${response.status}).`);
+      const data = (await response.json()) as DashboardSummary;
+      setSummary(data);
       setError(null);
     } catch {
       setError("Could not load your dashboard right now. Check that the API is running.");
@@ -85,6 +96,7 @@ export default function DashboardPage() {
   const obligations = (summary?.obligations ?? []).filter((item) => item.status !== "PAID" && item.status !== "SKIPPED").slice(0, 4);
   const expectedIncome = (summary?.expectedIncome ?? []).filter((item) => ["EXPECTED", "PARTIAL", "DELAYED"].includes(item.status)).slice(0, 4);
   const noFinancialData = Boolean(summary && summary.accounts.length === 0 && summary.expectedIncome.length === 0 && summary.obligations.length === 0);
+  const dashboardCurrency = summary?.preferredCurrency ?? currency;
 
   return (
     <div className="space-y-8">
@@ -119,19 +131,54 @@ export default function DashboardPage() {
         </section>
       ) : summary ? (
         <>
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <FinancialSummaryCard label="Safe to spend" value={formatMoney(Number(summary.safeToSpend))} description="After obligations and the existing reserve" emphasis />
-            <FinancialSummaryCard label="Current funds" value={formatMoney(Number(summary.currentFunds))} description="Money available right now" />
-            <FinancialSummaryCard label="Upcoming obligations" value={formatMoney(Number(summary.protectedObligations))} description="Commitments not yet paid or skipped" />
-            <FinancialSummaryCard label="Expected income" value={formatMoney(Number(summary.pendingIncome))} description="Expected income, not current funds" />
+          {(summary.warnings.length > 0 || summary.riskLevel !== "LOW") && (
+            <section className="space-y-3" aria-label="Money plan alerts">
+              {summary.riskLevel !== "LOW" && (
+                <div className={`flex flex-wrap items-start justify-between gap-3 rounded-xl border p-4 ${summary.riskLevel === "HIGH" ? "border-destructive/25 bg-destructive/[0.04]" : "border-amber-500/25 bg-amber-500/[0.04]"}`} role="status">
+                  <div className="flex gap-3">
+                    <AlertTriangle className={`mt-0.5 size-4 shrink-0 ${summary.riskLevel === "HIGH" ? "text-destructive" : "text-amber-700 dark:text-amber-300"}`} />
+                    <div>
+                      <p className="font-medium">{summary.riskLevel === "HIGH" ? "Some commitments may need attention" : "Your plan has a coverage gap to review"}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{summary.riskLevel} risk · Safe to spend is separate from projected income.</p>
+                    </div>
+                  </div>
+                  <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${summary.riskLevel === "HIGH" ? "border-destructive/25 text-destructive" : "border-amber-500/25 text-amber-800 dark:text-amber-300"}`}>{summary.riskLevel} RISK</span>
+                </div>
+              )}
+              {summary.warnings.filter((warning) => warning.code !== "protected_obligations_shortfall").map((warning) => {
+                const delayed = warning.code === "expected_income_delayed";
+                return (
+                  <article key={`${warning.code}-${warning.obligationId ?? warning.title ?? "warning"}`} className="flex gap-3 rounded-xl border border-border bg-card p-4" role="status">
+                    {delayed ? <Clock3 className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300" /> : <AlertTriangle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium">{delayed ? "Expected income delayed" : warning.code === "obligation_at_risk" ? "Upcoming obligation risk" : "Currency note"}</p>
+                        <span className="rounded-full border px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{warning.severity.toLowerCase()} risk</span>
+                      </div>
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">{warning.message}</p>
+                      {warning.amount !== undefined && <p className="mt-1 text-sm font-medium">{delayed ? "Excluded from projection:" : warning.code === "obligation_at_risk" ? "Not covered:" : "Amount:"} {formatMoney(warning.amount, dashboardCurrency)}</p>}
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
+          )}
+
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <FinancialSummaryCard label="Safe to spend now" value={formatMoney(Number(summary.safeToSpend), dashboardCurrency)} description="Current funds − protected obligations − 10% safety buffer" emphasis />
+            <FinancialSummaryCard label="Current funds" value={formatMoney(Number(summary.currentFunds), dashboardCurrency)} description="Money available right now" />
+            <FinancialSummaryCard label="Protected obligations" value={formatMoney(Number(summary.protectedObligations), dashboardCurrency)} description="Unpaid obligations, including funded and overdue items" />
+            <FinancialSummaryCard label="Safety buffer" value={formatMoney(Number(summary.minimumBuffer), dashboardCurrency)} description="MVP reserve: 10% of current funds" />
+            <FinancialSummaryCard label="Expected income" value={formatMoney(Number(summary.pendingIncome), dashboardCurrency)} description="Not counted toward safe-to-spend now" />
+            <FinancialSummaryCard label="Projected position" value={formatMoney(Number(summary.projectedPosition), dashboardCurrency)} description="Funds − obligations − buffer + expected income" />
           </section>
 
           <section className="grid gap-5 xl:grid-cols-2">
             <DashboardList title="Upcoming" description="Commitments in date order" icon={<ListChecks className="size-4" />} emptyText="Add bills or commitments you want to keep in view." emptyHref="/obligations" emptyAction="Add an obligation">
-              {obligations.map((item) => <div key={item.id} className="flex items-center justify-between gap-4 border-t py-4 first:border-0 first:pt-0 last:pb-0"><div className="min-w-0"><p className="truncate font-medium">{item.title}</p><p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><CalendarDays className="size-3.5" />{formatDate(item.dueDate)}<span className="mx-1">·</span>{item.priority.toLowerCase()}</p></div><p className="shrink-0 font-semibold tabular-nums">{formatMoney(Number(item.amount))}</p></div>)}
+              {obligations.map((item) => <div key={item.id} className="flex items-center justify-between gap-4 border-t py-4 first:border-0 first:pt-0 last:pb-0"><div className="min-w-0"><p className="truncate font-medium">{item.title}</p><p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><CalendarDays className="size-3.5" />{formatDate(item.dueDate)}<span className="mx-1">·</span>{item.priority.toLowerCase()}<span className="mx-1">·</span>{item.status.toLowerCase()}</p></div><p className="shrink-0 font-semibold tabular-nums">{formatMoney(Number(item.amount), dashboardCurrency)}</p></div>)}
             </DashboardList>
             <DashboardList title="Expected" description="Money you anticipate receiving" icon={<CircleDollarSign className="size-4" />} emptyText="Add payments you expect to receive so you can plan ahead." emptyHref="/income" emptyAction="Add expected income">
-              {expectedIncome.map((item) => <div key={item.id} className="flex items-center justify-between gap-4 border-t py-4 first:border-0 first:pt-0 last:pb-0"><div className="min-w-0"><p className="truncate font-medium">{item.title}</p><p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><CalendarDays className="size-3.5" />{formatDate(item.expectedDate)}<span className="mx-1">·</span>{item.confidence.toLowerCase()}</p></div><p className="shrink-0 font-semibold tabular-nums">{formatMoney(Number(item.amount))}</p></div>)}
+              {expectedIncome.map((item) => <div key={item.id} className="flex items-center justify-between gap-4 border-t py-4 first:border-0 first:pt-0 last:pb-0"><div className="min-w-0"><p className="truncate font-medium">{item.title}</p><p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><CalendarDays className="size-3.5" />{formatDate(item.expectedDate)}<span className="mx-1">·</span>{item.confidence.toLowerCase()}</p></div><p className="shrink-0 font-semibold tabular-nums">{formatMoney(Number(item.amount), dashboardCurrency)}</p></div>)}
             </DashboardList>
           </section>
         </>

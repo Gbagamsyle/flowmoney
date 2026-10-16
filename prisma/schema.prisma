@@ -3,14 +3,18 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
   id        String   @id @default(cuid())
   clerkId   String   @unique
   email     String   @unique
+  preferredCurrency String @default("NGN")
+  currencyConfirmedAt DateTime?
+  deletedAt DateTime?
   onboardingCompletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

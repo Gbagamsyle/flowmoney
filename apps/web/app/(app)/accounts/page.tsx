@@ -2,15 +2,10 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
+import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
+import { formatMoney } from "@/lib/format-money";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-
-const formatMoney = (value: number) =>
-  new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(value);
 
 type CurrentFund = {
   id: string;
@@ -24,16 +19,18 @@ type CurrentFund = {
 type FormState = {
   name: string;
   balance: string;
-  currency: string;
 };
 
 export default function AccountsPage() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { currency } = usePreferredCurrency();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<FormState>({ name: "", balance: "", currency: "NGN" });
+  const [form, setForm] = useState<FormState>({ name: "", balance: "" });
   const [funds, setFunds] = useState<CurrentFund[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const totalFunds = useMemo(
@@ -94,7 +91,7 @@ export default function AccountsPage() {
   }, [getToken, isLoaded, isSignedIn]);
 
   const resetForm = () => {
-    setForm({ name: "", balance: "", currency: "NGN" });
+    setForm({ name: "", balance: "" });
     setEditingId(null);
     setShowForm(false);
   };
@@ -104,39 +101,43 @@ export default function AccountsPage() {
 
     const parsedBalance = Number(form.balance);
     if (!form.name.trim() || Number.isNaN(parsedBalance) || parsedBalance <= 0) {
+      setError("Enter a fund name and an amount greater than zero.");
       return;
     }
 
-    const token = await getToken();
-    if (!token) {
-      return;
+    setSaving(true);
+    setError(null);
+    try {
+      const token = await getToken();
+      if (!token) throw new Error("Please sign in again to save this fund.");
+
+      const method = editingId ? "PATCH" : "POST";
+      const url = editingId
+        ? `${API_BASE_URL}/accounts/${editingId}`
+        : `${API_BASE_URL}/accounts`;
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          balance: parsedBalance,
+          ...(!editingId ? { currency } : {}),
+        }),
+      });
+
+      if (!response.ok) throw new Error(`The fund could not be saved (HTTP ${response.status}).`);
+
+      resetForm();
+      window.dispatchEvent(new CustomEvent("flowmoney:accounts-changed"));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The fund could not be saved.");
+    } finally {
+      setSaving(false);
     }
-
-    const method = editingId ? "PATCH" : "POST";
-    const url = editingId
-      ? `${API_BASE_URL}/accounts/${editingId}`
-      : `${API_BASE_URL}/accounts`;
-
-    const response = await fetch(url, {
-      method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: form.name.trim(),
-        balance: parsedBalance,
-        currency: form.currency,
-      }),
-    });
-
-    if (!response.ok) {
-      setError("The fund could not be saved.");
-      return;
-    }
-
-    resetForm();
-    window.dispatchEvent(new CustomEvent("flowmoney:accounts-changed"));
   };
 
   const handleEdit = (fund: CurrentFund) => {
@@ -144,7 +145,6 @@ export default function AccountsPage() {
     setForm({
       name: fund.name,
       balance: String(fund.balance),
-      currency: fund.currency ?? "NGN",
     });
     setShowForm(true);
   };
@@ -155,25 +155,28 @@ export default function AccountsPage() {
       return;
     }
 
-    const token = await getToken();
-    if (!token) {
-      return;
+    setDeletingId(fundId);
+    setError(null);
+    try {
+      const token = await getToken();
+      if (!token) throw new Error("Please sign in again to delete this fund.");
+
+      const response = await fetch(`${API_BASE_URL}/accounts/${fundId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error(`The fund could not be deleted (HTTP ${response.status}).`);
+
+      setFunds((current) => current.filter((fund) => fund.id !== fundId));
+      window.dispatchEvent(new CustomEvent("flowmoney:accounts-changed"));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The fund could not be deleted.");
+    } finally {
+      setDeletingId(null);
     }
-
-    const response = await fetch(`${API_BASE_URL}/accounts/${fundId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      setError("The fund could not be deleted.");
-      return;
-    }
-
-    setFunds((current) => current.filter((fund) => fund.id !== fundId));
-    window.dispatchEvent(new CustomEvent("flowmoney:accounts-changed"));
   };
 
   return (
@@ -226,24 +229,14 @@ export default function AccountsPage() {
             </label>
 
             <label className="space-y-2 text-sm font-medium">
-              <span>Currency</span>
-              <select
-                value={form.currency}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, currency: event.target.value }))
-                }
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-              >
-                <option value="NGN">NGN</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-              </select>
+              <span>Primary currency</span>
+              <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">{currency}</div>
             </label>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-sm font-medium">
-              <span>Amount</span>
+              <span>Amount ({currency})</span>
               <input
                 type="number"
                 min="0"
@@ -269,9 +262,10 @@ export default function AccountsPage() {
 
             <button
               type="submit"
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              disabled={saving}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {editingId ? "Save changes" : "Save fund"}
+              {saving ? "Saving…" : editingId ? "Save changes" : "Save fund"}
             </button>
           </div>
         </form>
@@ -294,7 +288,7 @@ export default function AccountsPage() {
           <div className="rounded-xl border bg-card p-4">
             <p className="text-sm text-muted-foreground">Total current funds</p>
             <p className="mt-2 text-3xl font-semibold tracking-tight">
-              {formatMoney(totalFunds)}
+              {formatMoney(totalFunds, currency)}
             </p>
           </div>
 
@@ -305,7 +299,7 @@ export default function AccountsPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">{fund.name}</p>
                     <p className="mt-2 text-2xl font-semibold tracking-tight">
-                      {formatMoney(Number(fund.balance ?? 0))}
+                      {formatMoney(Number(fund.balance ?? 0), currency)}
                     </p>
                   </div>
 
@@ -320,9 +314,10 @@ export default function AccountsPage() {
                     <button
                       type="button"
                       onClick={() => void handleDelete(fund.id)}
-                      className="rounded-md border border-destructive/30 px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/5"
+                      disabled={deletingId === fund.id}
+                      className="rounded-md border border-destructive/30 px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/5 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      Delete
+                      {deletingId === fund.id ? "Deleting…" : "Delete"}
                     </button>
                   </div>
                 </div>

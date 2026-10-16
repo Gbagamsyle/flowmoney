@@ -4,17 +4,20 @@ import { DashboardService } from './dashboard.service.js';
 
 describe('DashboardService', () => {
   it('keeps expected income separate from current funds and excludes received or cancelled income', async () => {
-    const user = { id: 'local-user-id' };
+    const user = { id: 'local-user-id', preferredCurrency: 'NGN' };
     const prisma = {
       financialAccount: {
-        findMany: vi.fn().mockResolvedValue([{ balance: '300000' }]),
+        findMany: vi.fn().mockResolvedValue([
+          { balance: '300000', currency: 'NGN' },
+          { balance: '120000', currency: 'NGN' },
+        ]),
       },
       expectedIncome: {
         findMany: vi.fn().mockResolvedValue([
-          { amount: '250000', status: 'EXPECTED' },
-          { amount: '50000', status: 'PARTIAL' },
-          { amount: '10000', status: 'RECEIVED' },
-          { amount: '20000', status: 'CANCELLED' },
+          { id: 'income-1', title: 'Client work', amount: '250000', status: 'EXPECTED', confidence: 'CONFIRMED', expectedDate: new Date(Date.now() + 7 * 86_400_000) },
+          { id: 'income-2', title: 'Contract', amount: '50000', status: 'PARTIAL', confidence: 'LIKELY', expectedDate: new Date(Date.now() + 10 * 86_400_000) },
+          { id: 'income-3', title: 'Received', amount: '10000', status: 'RECEIVED', confidence: 'CONFIRMED', expectedDate: new Date() },
+          { id: 'income-4', title: 'Cancelled', amount: '20000', status: 'CANCELLED', confidence: 'UNCERTAIN', expectedDate: new Date() },
         ]),
       },
       obligation: {

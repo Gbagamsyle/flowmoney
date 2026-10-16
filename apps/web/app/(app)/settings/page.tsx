@@ -1,3 +1,6 @@
+import { DeleteAccountSection } from "@/components/settings/delete-account-section";
+import { CurrencyPreferenceSection } from "@/components/settings/currency-preference-section";
+
 export default function SettingsPage() {
   return (
     <div className="space-y-4">
@@ -7,8 +10,11 @@ export default function SettingsPage() {
       </div>
 
       <div className="rounded-xl border border-dashed p-8 text-sm text-muted-foreground">
-        Profile, account, and planning preferences will go here.
+        Profile and planning preferences will go here.
       </div>
+
+      <CurrencyPreferenceSection />
+      <DeleteAccountSection />
     </div>
   );
 }

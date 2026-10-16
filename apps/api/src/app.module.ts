@@ -6,9 +6,10 @@ import { DashboardModule } from './dashboard/dashboard.module.js';
 import { ExpectedIncomeModule } from './expected-income/expected-income.module.js';
 import { ObligationsModule } from './obligations/obligations.module.js';
 import { UsersModule } from './users/users.module.js';
+import { ScenariosModule } from './scenarios/scenarios.module.js';
 
 @Module({
-  imports: [AccountsModule, ExpectedIncomeModule, ObligationsModule, DashboardModule, UsersModule],
+  imports: [AccountsModule, ExpectedIncomeModule, ObligationsModule, DashboardModule, ScenariosModule, UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { OnboardingRouteGate } from "@/components/layout/onboarding-route-gate";
+import { PreferredCurrencyProvider } from "@/components/settings/preferred-currency-provider";
 
 export default async function AppLayout({
   children,
@@ -17,7 +18,8 @@ export default async function AppLayout({
   }
 
   return (
-    <OnboardingRouteGate>
+    <PreferredCurrencyProvider>
+      <OnboardingRouteGate>
       <div className="min-h-screen bg-background">
         <AppSidebar />
 
@@ -29,6 +31,7 @@ export default async function AppLayout({
           </main>
         </div>
       </div>
-    </OnboardingRouteGate>
+      </OnboardingRouteGate>
+    </PreferredCurrencyProvider>
   );
 }
