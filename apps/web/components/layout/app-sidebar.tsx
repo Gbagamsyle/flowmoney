@@ -39,6 +39,11 @@ const navigation = [
     href: "/scenarios",
     icon: Landmark,
   },
+  {
+    label: "Settings",
+    href: "/settings",
+    icon: Settings,
+  },
 ];
 
 export function AppSidebar() {
@@ -76,19 +81,9 @@ export function AppSidebar() {
           })}
         </nav>
 
-        <div className="border-t p-4">
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <Settings className="size-4" />
-            Settings
-          </Link>
-        </div>
-
       </aside>
       <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t bg-card/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur lg:hidden">
-        {navigation.slice(0, 5).map((item) => {
+        {navigation.map((item) => {
           const active = pathname.startsWith(item.href);
           const Icon = item.icon;
           return (
@@ -96,13 +91,14 @@ export function AppSidebar() {
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
+              aria-label={item.label}
               className={cn(
-                "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-1 py-2 text-[10px] font-medium",
+                "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-0.5 py-2 text-[9px] font-medium sm:text-[10px]",
                 active ? "text-primary" : "text-muted-foreground",
               )}
             >
-              <Icon className="size-4" />
-              <span className="max-w-full truncate">{item.label === "Expected Income" ? "Income" : item.label}</span>
+              <Icon className="size-4 shrink-0" />
+              <span className="max-w-full truncate">{item.label === "Overview" ? "Home" : item.label === "Current Funds" ? "Funds" : item.label === "Expected Income" ? "Income" : item.label === "Obligations" ? "Bills" : item.label}</span>
             </Link>
           );
         })}

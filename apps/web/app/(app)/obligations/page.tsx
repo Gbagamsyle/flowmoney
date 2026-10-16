@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Button } from "@flowmoney/ui/components/button";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
 import { formatMoney } from "@/lib/format-money";
+import { trackProductEventOnce } from "@/lib/analytics";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 const inputClass = "w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -36,9 +37,10 @@ function statusLabel(status: Status) {
 }
 
 export default function ObligationsPage() {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { getToken, isLoaded, isSignedIn, userId } = useAuth();
   const { currency } = usePreferredCurrency();
   const [items, setItems] = useState<Obligation[]>([]);
+  const [itemsLoaded, setItemsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -53,6 +55,7 @@ export default function ObligationsPage() {
     const response = await fetch(`${API_BASE_URL}/obligations`, { headers: { Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error(`Could not load obligations (HTTP ${response.status}).`);
     setItems((await response.json()) as Obligation[]);
+    setItemsLoaded(true);
   }, [getToken]);
 
   useEffect(() => {
@@ -107,6 +110,7 @@ export default function ObligationsPage() {
         body: JSON.stringify({ ...form, title: form.title.trim(), amount }),
       });
       if (!response.ok) throw new Error(`Could not save obligation (HTTP ${response.status}).`);
+      if (!editingId && itemsLoaded && items.length === 0) void trackProductEventOnce("first_obligation_created", userId ?? undefined);
       resetForm();
       await loadItems();
       notifyDashboard();
@@ -172,7 +176,12 @@ export default function ObligationsPage() {
         </Button>
       </header>
 
-      {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</p>}
+      {error && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"><span>{error}</span>{items.length === 0 && !showForm && <Button variant="outline" onClick={() => {
+        setLoading(true);
+        setError("");
+        void loadItems().catch((cause) => setError(cause instanceof Error ? cause.message : "Could not load obligations."))
+          .finally(() => setLoading(false));
+      }} disabled={loading}>{loading ? "Retrying…" : "Try again"}</Button>}</div>}
 
       {showForm && <form onSubmit={submit} className="grid gap-4 rounded-xl border bg-card p-5 shadow-sm sm:grid-cols-2">
         <label className="space-y-2 text-sm font-medium sm:col-span-2">
@@ -199,7 +208,7 @@ export default function ObligationsPage() {
         </div>
       </form>}
 
-      {loading ? <div className="h-32 animate-pulse rounded-xl border bg-muted/40" role="status" aria-label="Loading obligations" /> : items.length === 0 ? (
+      {loading ? <div className="h-32 animate-pulse rounded-xl border bg-muted/40" role="status" aria-label="Loading obligations" /> : error && items.length === 0 ? null : items.length === 0 ? (
         <section className="rounded-xl border border-dashed bg-card px-6 py-12 text-center">
           <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground"><ListChecks className="size-6" /></div>
           <h2 className="mt-4 text-lg font-semibold">No obligations added yet</h2>

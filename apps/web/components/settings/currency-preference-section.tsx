@@ -6,7 +6,7 @@ import { CURRENCIES, type CurrencyCode } from "@/lib/currencies";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
 
 export function CurrencyPreferenceSection() {
-  const { currency, updateCurrency } = usePreferredCurrency();
+  const { currency, currencyLoading, currencyError, reloadCurrency, updateCurrency } = usePreferredCurrency();
   const [selection, setSelection] = useState<CurrencyCode>(currency);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -44,16 +44,19 @@ export function CurrencyPreferenceSection() {
             id="settings-currency"
             className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
             value={selection}
+            disabled={currencyLoading || saving}
             onChange={(event) => setSelection(event.target.value as CurrencyCode)}
           >
             {CURRENCIES.map((item) => <option key={item.code} value={item.code}>{item.name} ({item.code})</option>)}
           </select>
         </label>
-        <Button type="button" onClick={() => void save()} disabled={saving || selection === currency}>
+        <Button type="button" className="px-5" style={{ height: 42, minHeight: 42 }} onClick={() => void save()} disabled={saving || currencyLoading || selection === currency}>
           {saving ? "Saving…" : "Save currency"}
         </Button>
       </div>
 
+      {currencyLoading && <p className="text-sm text-muted-foreground" role="status">Loading your saved currency preference…</p>}
+      {currencyError && <div className="flex flex-wrap items-center gap-3" role="alert"><p className="text-sm text-destructive">{currencyError}</p><Button type="button" variant="outline" size="sm" onClick={() => void reloadCurrency()} disabled={currencyLoading}>Retry</Button></div>}
       {message && <p className="text-sm text-emerald-700 dark:text-emerald-400" role="status">{message}</p>}
       {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
     </section>

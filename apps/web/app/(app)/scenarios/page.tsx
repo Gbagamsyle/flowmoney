@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@flowmoney/ui/components/button";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
 import { formatMoney } from "@/lib/format-money";
+import { trackProductEventOnce } from "@/lib/analytics";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 const inputClass = "w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -61,7 +62,7 @@ const initialInputs: Inputs = {
 };
 
 export default function ScenariosPage() {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { getToken, isLoaded, isSignedIn, userId } = useAuth();
   const { currency: preferenceCurrency } = usePreferredCurrency();
   const [inputs, setInputs] = useState<Inputs>(initialInputs);
   const [evaluation, setEvaluation] = useState<ScenarioEvaluation | null>(null);
@@ -110,13 +111,20 @@ export default function ScenariosPage() {
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
       setEvaluating(true);
-      void evaluate(toChanges(inputs), controller.signal)
-        .then((result) => { setEvaluation(result); setError(""); })
+      const changes = toChanges(inputs);
+      void evaluate(changes, controller.signal)
+        .then((result) => {
+          setEvaluation(result);
+          setError("");
+          if (Object.values(changes).some((value) => Number(value) !== 0)) {
+            void trackProductEventOnce("scenario_used", userId ?? undefined);
+          }
+        })
         .catch((cause) => { if (cause?.name !== "AbortError") setError(cause instanceof Error ? cause.message : "Could not evaluate this scenario."); })
         .finally(() => { if (!controller.signal.aborted) setEvaluating(false); });
     }, 250);
     return () => { window.clearTimeout(timeout); controller.abort(); };
-  }, [evaluate, inputs, loading]);
+  }, [evaluate, inputs, loading, userId]);
 
   const currency = evaluation?.preferredCurrency ?? preferenceCurrency;
   const update = (key: keyof Inputs, value: string) => setInputs((current) => ({ ...current, [key]: value }));
@@ -196,6 +204,8 @@ export default function ScenariosPage() {
             <Link href="/dashboard" className="ml-1 inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-4">View dashboard<ArrowRight className="size-3.5" /></Link>
           </section>
         </div>
+      ) : error ? (
+        <section role="status" className="rounded-xl border border-dashed bg-card px-6 py-12 text-center"><div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground"><GitBranch className="size-6" /></div><h2 className="mt-4 text-lg font-semibold">Scenario planning is temporarily unavailable</h2><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">We couldn’t load your current financial position. Your saved data has not been changed; retry when the API is available.</p></section>
       ) : (
         <section className="rounded-xl border border-dashed bg-card px-6 py-12 text-center"><div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground"><GitBranch className="size-6" /></div><h2 className="mt-4 text-lg font-semibold">Could not load your starting position</h2><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Start by adding funds, expected income, or an obligation, then return here to test a what-if change.</p><div className="mt-5 flex flex-wrap justify-center gap-3"><Link href="/accounts"><Button variant="outline">Add funds</Button></Link><Link href="/obligations"><Button variant="outline">Add obligation</Button></Link></div></section>
       )}

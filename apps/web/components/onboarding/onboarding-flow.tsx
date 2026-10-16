@@ -8,6 +8,7 @@ import { Button } from "@flowmoney/ui/components/button";
 import flowIllustration from "@/assets/flow.png";
 import { formatMoney } from "@/lib/format-money";
 import { CURRENCIES, suggestCurrency, type CurrencyCode } from "@/lib/currencies";
+import { trackProductEventOnce } from "@/lib/analytics";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 const API_UNAVAILABLE_MESSAGE = `FlowMoney’s API at ${API_BASE_URL} isn’t reachable. Start the API and check DATABASE_URL and CLERK_SECRET_KEY in apps/api/.env.`;
@@ -29,7 +30,7 @@ function localDateAfter(days: number) {
 }
 
 export function OnboardingFlow() {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { getToken, isLoaded, isSignedIn, userId } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [currency, setCurrency] = useState<CurrencyCode>("NGN");
@@ -128,6 +129,7 @@ export function OnboardingFlow() {
     setError("");
     try {
       await request("/users/me/onboarding", { method: "PATCH" });
+      void trackProductEventOnce("onboarding_completed", userId ?? undefined);
       window.localStorage.removeItem("flowmoney:onboarding-step-v2");
       window.dispatchEvent(new CustomEvent("flowmoney:financial-data-changed"));
       router.replace("/dashboard");
@@ -155,6 +157,7 @@ export function OnboardingFlow() {
           body: JSON.stringify({ name: fund.name.trim(), balance: Number(fund.amount), currency }),
         });
       }
+      void trackProductEventOnce("first_fund_created", userId ?? undefined);
       window.dispatchEvent(new CustomEvent("flowmoney:financial-data-changed"));
       advance(3);
     } catch (cause) {
@@ -177,6 +180,7 @@ export function OnboardingFlow() {
         method: "POST",
         body: JSON.stringify({ ...income, title: income.title.trim(), amount: Number(income.amount) }),
       });
+      void trackProductEventOnce("first_expected_income_created", userId ?? undefined);
       window.dispatchEvent(new CustomEvent("flowmoney:financial-data-changed"));
       advance(4);
     } catch (cause) {
@@ -202,6 +206,7 @@ export function OnboardingFlow() {
           body: JSON.stringify({ ...item, title: item.title.trim(), amount: Number(item.amount) }),
         });
       }
+      void trackProductEventOnce("first_obligation_created", userId ?? undefined);
       window.dispatchEvent(new CustomEvent("flowmoney:financial-data-changed"));
       await loadSnapshot();
       advance(5);

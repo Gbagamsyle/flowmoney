@@ -16,23 +16,23 @@ export function FinancialSummaryCard({
 }: FinancialSummaryCardProps) {
   return (
     <Card
-      className={cn("shadow-none", emphasis && "border-primary/30 bg-primary/[0.04]")}
+      className={cn("min-w-0 shadow-none [--card-spacing:--spacing(5)] sm:[--card-spacing:--spacing(6)]", emphasis && "bg-primary text-primary-foreground [--card-spacing:--spacing(6)] sm:[--card-spacing:--spacing(8)]")}
     >
       <CardHeader className="pb-2">
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p className={cn("text-sm font-medium text-muted-foreground", emphasis && "text-primary-foreground/80")}>{label}</p>
       </CardHeader>
 
       <CardContent>
         <p
           className={cn(
-            "text-3xl font-semibold tracking-tight",
-            emphasis && "text-primary",
+            "break-all text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl",
+            emphasis && "text-4xl leading-tight sm:text-5xl lg:text-6xl",
           )}
         >
           {value}
         </p>
 
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        <p className={cn("mt-3 max-w-xl text-sm leading-6 text-muted-foreground", emphasis && "text-primary-foreground/80")}>{description}</p>
       </CardContent>
     </Card>
   );

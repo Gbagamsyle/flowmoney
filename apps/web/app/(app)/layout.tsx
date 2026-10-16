@@ -20,10 +20,10 @@ export default async function AppLayout({
   return (
     <PreferredCurrencyProvider>
       <OnboardingRouteGate>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-svh bg-background">
         <AppSidebar />
 
-        <div className="pb-16 lg:pb-0 lg:pl-64">
+        <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-64">
           <AppHeader />
 
           <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
