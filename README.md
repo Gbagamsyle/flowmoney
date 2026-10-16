@@ -134,6 +134,16 @@ Run these from the repository root:
 
 The root build and type-check scripts target the web workspace; they do not verify the entire repository. API tests that initialize the database-backed application may require a configured test database. Existing tests do not establish coverage of the complete product.
 
+### Web analytics, monitoring, and browser tests
+
+The web app has consent-gated PostHog events for onboarding completion, first funds, first expected income, first obligation, first scenario use, and returning to the dashboard. Users can enable or disable product analytics in Settings. Event payloads intentionally omit names and financial values. Set `NEXT_PUBLIC_POSTHOG_KEY` (and optionally `NEXT_PUBLIC_POSTHOG_HOST`) in the web environment to send events; without a key, event calls are no-ops.
+
+Sentry is initialized for browser, Node.js, Edge, and Next.js request errors. Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` in the web environment to enable reporting. Collection is disabled when the respective DSN is absent, and default PII capture is off. `apps/web/.env.example` lists the web-side configuration variables.
+
+The Playwright journey is available with `pnpm --filter @flowmoney/web test:e2e`. Install its browser once with `pnpm --filter @flowmoney/web exec playwright install chromium`, start the API with a test database, and configure the web app with the matching Clerk test instance. For a complete fresh-user run, set `FLOWMONEY_E2E_SIGNUP_EMAIL` and `FLOWMONEY_E2E_SIGNUP_PASSWORD` to a unique disposable identity; if Clerk requires email verification, also provide `FLOWMONEY_E2E_SIGNUP_CODE`. Alternatively, set `FLOWMONEY_E2E_EMAIL` and `FLOWMONEY_E2E_PASSWORD` to a pre-created dedicated test user. The journey creates financial data, changes the currency preference, deletes the FlowMoney profile, and signs in again to verify a fresh onboarding state; do not point it at a personal or production account. The journey is skipped when neither credential pair is supplied. A separate sign-up route smoke check runs when the Clerk publishable key is configured. A signup email must be unique and unused for each run.
+
+The API user-service suite also covers verified-email recovery, non-relinking after deletion, financial-data deletion, and repeated deletion: `pnpm --filter @flowmoney/api test -- src/users/users.service.spec.ts`.
+
 ## Current implementation and next milestones
 
 | Area | Current state | Next work |
