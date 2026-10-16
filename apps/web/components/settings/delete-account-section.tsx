@@ -4,11 +4,12 @@ import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Button } from "@flowmoney/ui/components/button";
+import { clearLocalAccountState } from "@/lib/analytics";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export function DeleteAccountSection() {
-  const { getToken, isLoaded } = useAuth();
+  const { getToken, isLoaded, userId } = useAuth();
   const { signOut } = useClerk();
   const router = useRouter();
   const [confirmation, setConfirmation] = useState("");
@@ -35,7 +36,7 @@ export function DeleteAccountSection() {
         throw new Error(`Account deletion failed (HTTP ${response.status}). Please try again.`);
       }
 
-      window.localStorage.removeItem("flowmoney:onboarding-step");
+      clearLocalAccountState(userId ?? undefined);
       await signOut();
       router.replace("/");
       router.refresh();

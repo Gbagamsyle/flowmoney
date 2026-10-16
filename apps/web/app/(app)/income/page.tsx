@@ -2,10 +2,11 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { ArrowRight, CalendarDays, CircleDollarSign, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@flowmoney/ui/components/button";
 import { formatMoney } from "@/lib/format-money";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
+import { trackProductEventOnce } from "@/lib/analytics";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 const inputClass = "w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -18,27 +19,50 @@ function nextWeek() {
 }
 
 export default function IncomePage() {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { getToken, isLoaded, isSignedIn, userId } = useAuth();
   const { currency } = usePreferredCurrency();
   const [items, setItems] = useState<IncomeItem[]>([]);
+  const [itemsLoaded, setItemsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ title: "", amount: "", expectedDate: nextWeek(), confidence: "LIKELY" });
 
-  const loadItems = async () => {
+  const loadItems = useCallback(async () => {
     const token = await getToken();
-    if (!token) return;
+    if (!token) throw new Error("Please sign in again to load expected income.");
     const response = await fetch(`${API_BASE_URL}/expected-income`, { headers: { Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error("Could not load expected income.");
     setItems((await response.json()) as IncomeItem[]);
-  };
+    setItemsLoaded(true);
+    setError("");
+  }, [getToken]);
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn) return;
-    void loadItems().catch((cause) => setError(cause instanceof Error ? cause.message : "Could not load expected income.")).finally(() => setLoading(false));
-  }, [getToken, isLoaded, isSignedIn]);
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      setLoading(false);
+      return;
+    }
+    let active = true;
+    void loadItems().catch((cause) => {
+      if (active) setError(cause instanceof Error ? cause.message : "Could not load expected income.");
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [isLoaded, isSignedIn, loadItems]);
+
+  const retryLoad = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await loadItems();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Could not load expected income.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -57,6 +81,7 @@ export default function IncomePage() {
         body: JSON.stringify({ ...form, title: form.title.trim(), amount: Number(form.amount) }),
       });
       if (!response.ok) throw new Error("Could not save this income. Please try again.");
+      if (itemsLoaded && items.length === 0) void trackProductEventOnce("first_expected_income_created", userId ?? undefined);
       setForm({ title: "", amount: "", expectedDate: nextWeek(), confidence: "LIKELY" });
       setShowForm(false);
       await loadItems();
@@ -75,7 +100,7 @@ export default function IncomePage() {
         <Button onClick={() => setShowForm((value) => !value)}><Plus className="mr-2 size-4" />{showForm ? "Close" : "Add income"}</Button>
       </div>
 
-      {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</p>}
+      {error && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"><span>{error}</span>{items.length === 0 && !showForm && <Button variant="outline" onClick={() => void retryLoad()} disabled={loading}>{loading ? "Retrying…" : "Try again"}</Button>}</div>}
 
       {showForm && <form onSubmit={submit} className="grid gap-4 rounded-xl border bg-card p-5 shadow-sm sm:grid-cols-2">
         <label className="space-y-2 text-sm font-medium sm:col-span-2">Source or title<input className={inputClass} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Client website project" /></label>
@@ -85,7 +110,7 @@ export default function IncomePage() {
         <div className="flex justify-end sm:col-span-2"><Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save expected income"}<ArrowRight className="ml-2 size-4" /></Button></div>
       </form>}
 
-      {loading ? <div className="h-32 animate-pulse rounded-xl border bg-muted/40" role="status" /> : items.length === 0 ? (
+      {loading ? <div className="h-32 animate-pulse rounded-xl border bg-muted/40" role="status" /> : error && items.length === 0 ? null : items.length === 0 ? (
         <section className="rounded-xl border border-dashed bg-card px-6 py-12 text-center">
           <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground"><CircleDollarSign className="size-6" /></div>
           <h2 className="mt-4 text-lg font-semibold">No expected income yet</h2>

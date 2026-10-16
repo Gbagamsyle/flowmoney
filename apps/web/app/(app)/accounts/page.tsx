@@ -4,6 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
 import { formatMoney } from "@/lib/format-money";
+import { trackProductEventOnce } from "@/lib/analytics";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -22,12 +23,13 @@ type FormState = {
 };
 
 export default function AccountsPage() {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { getToken, isLoaded, isSignedIn, userId } = useAuth();
   const { currency } = usePreferredCurrency();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>({ name: "", balance: "" });
   const [funds, setFunds] = useState<CurrentFund[]>([]);
+  const [fundsLoaded, setFundsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -45,7 +47,7 @@ export default function AccountsPage() {
 
     const token = await getToken();
     if (!token) {
-      return;
+      throw new Error("Please sign in again to load your current funds.");
     }
 
     const response = await fetch(`${API_BASE_URL}/accounts`, {
@@ -65,6 +67,7 @@ export default function AccountsPage() {
         balance: Number(fund.balance ?? 0),
       })),
     );
+    setFundsLoaded(true);
     setError(null);
   };
 
@@ -131,6 +134,7 @@ export default function AccountsPage() {
 
       if (!response.ok) throw new Error(`The fund could not be saved (HTTP ${response.status}).`);
 
+      if (!editingId && fundsLoaded && funds.length === 0) void trackProductEventOnce("first_fund_created", userId ?? undefined);
       resetForm();
       window.dispatchEvent(new CustomEvent("flowmoney:accounts-changed"));
     } catch (cause) {
@@ -207,8 +211,13 @@ export default function AccountsPage() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-          {error}
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+          <span>{error}</span>
+          {funds.length === 0 && !showForm && <button type="button" onClick={() => {
+            setLoading(true);
+            void loadFunds().catch(() => setError("Could not load your current funds. Please try again."))
+              .finally(() => setLoading(false));
+          }} disabled={loading} className="min-h-11 rounded-md border border-destructive/30 px-3 font-medium disabled:opacity-60">{loading ? "Retrying…" : "Try again"}</button>}
         </div>
       )}
 
@@ -275,13 +284,14 @@ export default function AccountsPage() {
         <div className="rounded-2xl border border-dashed bg-card/40 p-10 text-center text-sm text-muted-foreground">
           Loading your funds…
         </div>
-      ) : funds.length === 0 ? (
+      ) : error && funds.length === 0 ? null : funds.length === 0 ? (
         <div className="rounded-2xl border border-dashed bg-card/40 p-10 text-center">
           <p className="text-lg font-medium">No current funds yet</p>
           <p className="mt-2 text-sm text-muted-foreground">
             Add your first amount to start building a realistic picture of your
             available cash.
           </p>
+          <button type="button" onClick={() => setShowForm(true)} className="mt-5 min-h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">Add your first funds</button>
         </div>
       ) : (
         <div className="space-y-4">

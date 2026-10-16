@@ -88,6 +88,27 @@ describe('UsersService', () => {
     expect(prisma.user.findFirst).not.toHaveBeenCalled();
   });
 
+  it('does not relink a deleted profile after the email has been anonymized', async () => {
+    const uniqueConflict = { code: 'P2002', meta: { target: ['email'] } };
+    const prisma = {
+      user: {
+        upsert: vi.fn().mockRejectedValue(uniqueConflict),
+        findFirst: vi.fn().mockResolvedValue(null),
+      },
+    } as any;
+
+    const service = new UsersService(prisma);
+
+    await expect(service.getOrCreateForClerk({
+      clerkId: 'replacement-clerk-user',
+      email: 'user@example.com',
+      emailVerified: true,
+    })).rejects.toBe(uniqueConflict);
+    expect(prisma.user.findFirst).toHaveBeenCalledWith({
+      where: { email: 'user@example.com', deletedAt: null },
+    });
+  });
+
   it('records onboarding completion for the authenticated Clerk user', async () => {
     const completedAt = new Date('2026-10-10T09:00:00.000Z');
     const prisma = {
@@ -202,5 +223,19 @@ describe('UsersService', () => {
         deletedAt: expect.any(Date),
       },
     });
+  });
+
+  it('makes repeated account deletion a no-op', async () => {
+    const prisma = {
+      user: {
+        findUnique: vi.fn().mockResolvedValue({ id: 'local-user-id', deletedAt: new Date() }),
+      },
+      $transaction: vi.fn(),
+    } as any;
+
+    const service = new UsersService(prisma);
+    await service.deleteAccount('clerk-user-123');
+
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 });
