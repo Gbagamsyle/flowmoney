@@ -29,6 +29,12 @@ export function OnboardingRouteGate({ children }: { children: React.ReactNode })
         const response = await fetch(`${API_BASE_URL}/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (response.status === 401) {
+          router.replace("/sign-in");
+          return;
+        }
+
         if (!response.ok) throw new Error("Could not check onboarding status");
 
         const user = (await response.json()) as { onboardingCompletedAt: string | null };

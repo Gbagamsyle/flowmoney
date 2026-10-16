@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
+  Patch,
   Post,
   Req,
   UnauthorizedException,
@@ -28,12 +31,42 @@ export class ObligationsController {
   @Post()
   async create(
     @Req() req: { user?: { id?: string } },
-    @Body() body: { title: string; amount: number; dueDate: string; priority: string; status?: string },
+    @Body() body: { title: string; amount: number; dueDate: string; priority: string },
   ) {
     if (!req.user?.id) {
       throw new UnauthorizedException();
     }
 
     return this.obligationsService.create(req.user.id, body);
+  }
+
+  @UseGuards(ClerkAuthGuard)
+  @Patch(':id')
+  async update(
+    @Req() req: { user?: { id?: string } },
+    @Param('id') id: string,
+    @Body() body: {
+      title?: string;
+      amount?: number;
+      dueDate?: string;
+      priority?: string;
+      status?: string;
+    },
+  ) {
+    if (!req.user?.id) {
+      throw new UnauthorizedException();
+    }
+
+    return this.obligationsService.update(req.user.id, id, body);
+  }
+
+  @UseGuards(ClerkAuthGuard)
+  @Delete(':id')
+  async delete(@Req() req: { user?: { id?: string } }, @Param('id') id: string) {
+    if (!req.user?.id) {
+      throw new UnauthorizedException();
+    }
+
+    return this.obligationsService.delete(req.user.id, id);
   }
 }

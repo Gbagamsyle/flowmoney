@@ -11,7 +11,7 @@ export class ClerkAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<{
       headers: Record<string, string | undefined>;
-      user?: { id: string; email?: string };
+      user?: { id: string; email?: string; emailVerified: boolean };
     }>();
 
     const authorization = req.headers.authorization ?? '';
@@ -38,11 +38,12 @@ export class ClerkAuthGuard implements CanActivate {
       const clerkUser = await clerk.users.getUser(clerkUserId);
       const primaryEmail = clerkUser.emailAddresses.find(
         (entry) => entry.id === clerkUser.primaryEmailAddressId,
-      )?.emailAddress;
+      ) ?? clerkUser.emailAddresses[0];
 
       req.user = {
         id: clerkUserId,
-        email: primaryEmail ?? clerkUser.emailAddresses[0]?.emailAddress,
+        email: primaryEmail?.emailAddress,
+        emailVerified: primaryEmail?.verification?.status === 'verified',
       };
 
       return true;
