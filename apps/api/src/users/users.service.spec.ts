@@ -3,6 +3,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { UsersService } from './users.service.js';
 
 describe('UsersService', () => {
+  it('propagates database outages for statement operations that require persistent storage', async () => {
+    const outage = { code: 'P1001' };
+    const prisma = { user: { findUnique: vi.fn().mockRejectedValue(outage), upsert: vi.fn().mockRejectedValue(outage) } } as any;
+    const service = new UsersService(prisma);
+    await expect(service.findByClerkId('clerk-user', true)).rejects.toBe(outage);
+    await expect(service.getOrCreateForClerk({ clerkId: 'clerk-user', requireDatabase: true })).rejects.toBe(outage);
+  });
   it('creates or updates the local user from the Clerk identity', async () => {
     const prisma = {
       user: {
@@ -194,6 +201,8 @@ describe('UsersService', () => {
 
   it('removes financial records and anonymizes the user on account deletion', async () => {
     const transaction = {
+      statementCategoryRule: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
+      statementImport: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
       expectedIncome: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
       obligation: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
       financialAccount: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
@@ -210,6 +219,8 @@ describe('UsersService', () => {
     const service = new UsersService(prisma);
     await service.deleteAccount('clerk-user-123');
 
+    expect(transaction.statementCategoryRule.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
+    expect(transaction.statementImport.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
     expect(transaction.expectedIncome.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
     expect(transaction.obligation.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
     expect(transaction.financialAccount.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });

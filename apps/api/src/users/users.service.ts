@@ -33,13 +33,13 @@ export class UsersService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByClerkId(clerkId: string) {
+  async findByClerkId(clerkId: string, requireDatabase = false) {
     try {
       return await this.prisma.user.findUnique({
         where: { clerkId },
       });
     } catch (error) {
-      if (isDatabaseUnavailable(error)) {
+      if (isDatabaseUnavailable(error) && !requireDatabase) {
         return null;
       }
       throw error;
@@ -50,10 +50,12 @@ export class UsersService {
     clerkId,
     email,
     emailVerified = false,
+    requireDatabase = false,
   }: {
     clerkId: string;
     email?: string;
     emailVerified?: boolean;
+    requireDatabase?: boolean;
   }) {
     const normalizedEmail = email ?? `${clerkId}@flowmoney.local`;
     const update = email && emailVerified ? { email: normalizedEmail } : {};
@@ -68,7 +70,7 @@ export class UsersService {
         },
       });
     } catch (error) {
-      if (isDatabaseUnavailable(error)) {
+      if (isDatabaseUnavailable(error) && !requireDatabase) {
         return {
           id: clerkId,
           clerkId,
@@ -100,7 +102,7 @@ export class UsersService {
             return recoveredUser;
           }
         } catch (recoveryError) {
-          if (isDatabaseUnavailable(recoveryError)) {
+          if (isDatabaseUnavailable(recoveryError) && !requireDatabase) {
             return {
               id: clerkId,
               clerkId,
@@ -125,6 +127,8 @@ export class UsersService {
     if (!user || user.deletedAt) return;
 
     await this.prisma.$transaction(async (transaction) => {
+      await transaction.statementCategoryRule.deleteMany({ where: { userId: user.id } });
+      await transaction.statementImport.deleteMany({ where: { userId: user.id } });
       await transaction.expectedIncome.deleteMany({ where: { userId: user.id } });
       await transaction.obligation.deleteMany({ where: { userId: user.id } });
       await transaction.financialAccount.deleteMany({ where: { userId: user.id } });

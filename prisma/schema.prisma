@@ -19,6 +19,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  statementCategoryRules StatementCategoryRule[]
+  statementImports StatementImport[]
   accounts       FinancialAccount[]
   incomeSources  IncomeSource[]
   expectedIncome ExpectedIncome[]
@@ -126,4 +128,54 @@ enum ObligationStatus {
   FUNDED
   PAID
   SKIPPED
+}
+
+model StatementImport {
+  id String @id @default(cuid())
+  userId String
+  digest String
+  format String
+  currency String
+  parserVersion String
+  status String @default("REVIEW")
+  createdAt DateTime @default(now())
+  importedAt DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions StatementTransaction[]
+  @@unique([userId, digest])
+  @@index([userId, createdAt])
+}
+
+model StatementTransaction {
+  id String @id @default(cuid())
+  importId String
+  sourceRow Int
+  date DateTime @db.Date
+  description String
+  amountMinor Decimal @db.Decimal(16, 0)
+  direction String
+  category String
+  parsedCategory String
+  confidence Float
+  reason String
+  approved Boolean @default(false)
+  reviewedAt DateTime?
+  statement StatementImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  @@unique([importId, sourceRow])
+  @@index([importId, approved])
+}
+
+model StatementCategoryRule {
+  id String @id @default(cuid())
+  userId String
+  counterpartyKey String
+  counterpartyName String
+  direction String
+  currency String
+  category String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, counterpartyKey, direction, currency], map: "StatementCategoryRule_match_key")
+  @@index([userId])
 }

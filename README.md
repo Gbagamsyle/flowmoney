@@ -195,3 +195,7 @@ These references are currently shared separately. Add repository links when the 
 ## License
 
 A repository-level license has not yet been established. The root manifest currently declares `ISC`, while the API manifest declares `UNLICENSED`. The team should reconcile these declarations and add a license file before publishing a definitive licensing statement.
+
+## Statement Insights
+
+See [Statement Insights v1](docs/statement-insights.md) for supported file layouts, the review/import API, privacy limits, and database migration steps.
