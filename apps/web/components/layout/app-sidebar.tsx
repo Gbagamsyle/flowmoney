@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  Calculator,
   CircleDollarSign,
+  FileText,
   Gauge,
   Landmark,
   ListChecks,
@@ -35,9 +37,19 @@ const navigation = [
     icon: ListChecks,
   },
   {
+    label: "Statements",
+    href: "/statements",
+    icon: FileText,
+  },
+  {
     label: "Scenarios",
     href: "/scenarios",
     icon: Landmark,
+  },
+  {
+    label: "Calculator",
+    href: "/calculator",
+    icon: Calculator,
   },
   {
     label: "Settings",
@@ -53,7 +65,10 @@ export function AppSidebar() {
     <>
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r bg-card lg:flex lg:flex-col">
         <div className="flex h-16 items-center border-b px-6">
-          <Link href="/dashboard" className="text-xl font-semibold tracking-tight">
+          <Link
+            href="/dashboard"
+            className="text-xl font-semibold tracking-tight"
+          >
             FlowMoney
           </Link>
         </div>
@@ -80,9 +95,11 @@ export function AppSidebar() {
             );
           })}
         </nav>
-
       </aside>
-      <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t bg-card/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur lg:hidden">
+      <nav
+        aria-label="Mobile navigation"
+        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t bg-card/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur lg:hidden"
+      >
         {navigation.map((item) => {
           const active = pathname.startsWith(item.href);
           const Icon = item.icon;
@@ -98,7 +115,17 @@ export function AppSidebar() {
               )}
             >
               <Icon className="size-4 shrink-0" />
-              <span className="max-w-full truncate">{item.label === "Overview" ? "Home" : item.label === "Current Funds" ? "Funds" : item.label === "Expected Income" ? "Income" : item.label === "Obligations" ? "Bills" : item.label}</span>
+              <span className="max-w-full truncate">
+                {item.label === "Overview"
+                  ? "Home"
+                  : item.label === "Current Funds"
+                    ? "Funds"
+                    : item.label === "Expected Income"
+                      ? "Income"
+                      : item.label === "Obligations"
+                        ? "Bills"
+                        : item.label}
+              </span>
             </Link>
           );
         })}
