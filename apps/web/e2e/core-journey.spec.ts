@@ -68,7 +68,7 @@ test("onboarding, money planning, scenarios, settings, deletion, and restart", a
   await expect(page.getByRole("heading", { name: /a clearer cash view is ready/i })).toBeVisible();
   await page.getByRole("button", { name: /go to my dashboard/i }).click();
 
-  await expect(page.getByRole("heading", { name: /your money, in perspective/i })).toBeVisible();
+  await expect(page.getByText("Your money, in perspective", { exact: true })).toBeVisible();
   await expect(page.getByText("$400,000")).toBeVisible();
 
   await page.goto("/scenarios");
@@ -79,7 +79,9 @@ test("onboarding, money planning, scenarios, settings, deletion, and restart", a
   await page.goto("/settings");
   await expect(page.getByRole("navigation", { name: "Mobile navigation" }).getByRole("link", { name: "Settings" })).toBeVisible();
   await page.getByLabel("Currency").selectOption("GBP");
-  await page.getByRole("button", { name: "Save currency" }).click();
+  await page.getByRole("button", { name: "Review change", exact: true }).click();
+  await page.getByRole("checkbox", { name: "I understand that saved amounts will not be converted." }).check();
+  await page.getByRole("button", { name: "Confirm currency change", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: /currency has been updated/i })).toBeVisible();
   await page.goto("/dashboard");
   await expect(page.getByText("£400,000")).toBeVisible();

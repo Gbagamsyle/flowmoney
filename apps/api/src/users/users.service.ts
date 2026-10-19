@@ -127,6 +127,8 @@ export class UsersService {
     if (!user || user.deletedAt) return;
 
     await this.prisma.$transaction(async (transaction) => {
+      await transaction.monthlyPlan.deleteMany({ where: { userId: user.id } });
+      await transaction.planningAction.deleteMany({ where: { userId: user.id } });
       await transaction.statementCategoryRule.deleteMany({ where: { userId: user.id } });
       await transaction.statementImport.deleteMany({ where: { userId: user.id } });
       await transaction.expectedIncome.deleteMany({ where: { userId: user.id } });
@@ -142,7 +144,7 @@ export class UsersService {
           deletedAt: new Date(),
         },
       });
-    });
+    }, { timeout: 30000 });
   }
 
   async updatePreferredCurrency(clerkId: string, currency: string) {

@@ -218,12 +218,12 @@ export default function ObligationsPage() {
       ) : (
         <section className="space-y-3" aria-label="Your obligations">
           {items.map((item) => <article key={item.id} className="flex flex-col gap-4 rounded-xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <h2 className="truncate font-semibold">{item.title}</h2>
+            <div className="min-w-0 sm:flex-1">
+              <h2 className="break-words font-semibold">{item.title}</h2>
               <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 <CalendarDays className="size-3.5" />Due {formatDate(item.dueDate)}<span>·</span>{item.priority.toLowerCase()}
               </p>
-              <p className="mt-2 text-xl font-semibold tabular-nums">{formatMoney(Number(item.amount), currency)}</p>
+              <p className="mt-2 break-all text-xl font-semibold tabular-nums">{formatMoney(Number(item.amount), currency)}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <label className="sr-only" htmlFor={`status-${item.id}`}>Status for {item.title}</label>

@@ -201,6 +201,8 @@ describe('UsersService', () => {
 
   it('removes financial records and anonymizes the user on account deletion', async () => {
     const transaction = {
+      monthlyPlan: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
+      planningAction: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
       statementCategoryRule: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
       statementImport: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
       expectedIncome: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
@@ -219,6 +221,8 @@ describe('UsersService', () => {
     const service = new UsersService(prisma);
     await service.deleteAccount('clerk-user-123');
 
+    expect(transaction.monthlyPlan.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
+    expect(transaction.planningAction.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
     expect(transaction.statementCategoryRule.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
     expect(transaction.statementImport.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
     expect(transaction.expectedIncome.deleteMany).toHaveBeenCalledWith({ where: { userId: 'local-user-id' } });
