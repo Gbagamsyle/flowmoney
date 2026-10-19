@@ -208,7 +208,7 @@ test("onboarding, statements, both planning modes, responsive pages, settings, d
       .getByRole("navigation", { name: "Mobile navigation" })
       .getByRole("link", { name: "Settings" }),
   ).toBeVisible();
-  await page.getByLabel("Currency").selectOption("GBP");
+  await page.getByLabel("Currency", { exact: true }).selectOption("GBP");
   await page
     .getByRole("button", { name: "Review change", exact: true })
     .click();

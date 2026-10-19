@@ -23,11 +23,16 @@ or an owner decision. Passing unit tests is not evidence of real authentication 
 - [x] Analytics regression verifies disabled/enabled/re-enabled consent, immediate revocation,
   SDK initialization retry, no duplicate opt-in, and one-time-event retry after revocation.
 
+- [x] Live responsive coverage completed with actual Clerk/API data: 54 screenshots across nine
+  populated pages, three viewport sizes and both themes; all 18 desktop main-content accessibility
+  checks passed. [Result record](qa/live-browser-2026-10-19.json). The full authenticated journey also passed, including currency confirmation, deletion and fresh onboarding.
+  Both browser tests passed; the temporary Clerk identity and database were removed.
+
 ## Before merging
 
 - [ ] GitHub Quality workflow passes on the final PR commit. The first run was blocked before any steps: GitHub reported that the account is locked due to a billing issue. Resolve account billing, then rerun Quality; hosted CI is not verified. Configure branch protection to require it.
 - [ ] Review the PR, especially the production WEB_ORIGIN requirement and the preserved logo changes.
-- [ ] Run the dedicated authenticated journey locally before merge if credentials are available. Otherwise keep the release gated until Authenticated release QA can be dispatched after the workflow is on the default branch; inspect its responsive screenshots before inviting testers.
+- [x] Run the dedicated authenticated journey locally: both tests passed with a real Clerk session and isolated migrated database. Live financial screens, both planning modes, currency confirmation, deletion and restart are verified. Hosted QA remains unrun while GitHub billing is locked.
 - [x] Responsive component audit: 220 checks across 10 emulated viewport sizes, including forms, individual statement review, planning edits and onboarding; no overflow or runtime errors. See [the result record](qa/responsive-2026-10-19.json). This used synthetic auth/API responses and does not prove live integration.
 
 ## Authenticated QA setup
@@ -53,8 +58,8 @@ For a local live run, point both apps at a disposable database, configure Clerk 
 dedicated `FLOWMONEY_E2E_EMAIL`/`FLOWMONEY_E2E_PASSWORD`, set `FLOWMONEY_E2E_DISPOSABLE=true`,
 start the API, and run the web `core-journey.spec.ts` suite. A temporary Clerk test user and separate empty database were provisioned for local QA without
 changing the application environment files. Each attempt cleans up its own test user and database.
-The full browser-journey result is recorded below when verified; API authentication and all supported
-format checks have already passed. No persistent disposable-user credentials were committed.
+The full browser journey passed, along with API authentication and all supported format checks.
+See the [live browser result](qa/live-browser-2026-10-19.json). No persistent disposable-user credentials were committed.
 
 ## Current local scope
 
@@ -79,8 +84,8 @@ see [Clerk testing guidance](https://clerk.com/docs/guides/development/testing/o
   unnecessary personal data. Do not intentionally crash a user's session.
 - [ ] Configure PostHog, confirm no product events before consent and expected events after opt-in.
   Check actual payloads for names, descriptions, amounts and tokens; these must be absent.
-- [ ] Exercise digital PDF, CSV and XLSX imports in staging with synthetic fixtures; scanned PDFs
-  must show the unsupported-layout message. Confirm approval boundaries and duplicate handling.
+- [x] Exercise digital PDF, CSV and XLSX imports locally with real authentication and synthetic fixtures; unsupported PDFs are rejected, approval boundaries hold and duplicates reuse the existing import.
+- [ ] Repeat the deployment smoke checks on staging once a deployed URL is available.
 - [ ] Verify database recovery/backups and a rollback path. Keep additive migrations on app rollback;
   do not delete user data to roll back the UI. Assign an incident/contact owner.
 - [ ] Check keyboard navigation, focus, zoom, contrast and one real phone/tablet/desktop browser.
