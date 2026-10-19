@@ -140,7 +140,7 @@ The web app has consent-gated PostHog events for onboarding completion, first fu
 
 Sentry is initialized for browser, Node.js, Edge, and Next.js request errors. Set `NEXT_PUBLIC_SENTRY_DSN` and `SENTRY_DSN` in the web environment to enable reporting. Collection is disabled when the respective DSN is absent, and default PII capture is off. `apps/web/.env.example` lists the web-side configuration variables.
 
-The Playwright journey is available with `pnpm --filter @flowmoney/web test:e2e`. Install its browser once with `pnpm --filter @flowmoney/web exec playwright install chromium`, start the API with a test database, and configure the web app with the matching Clerk test instance. For a complete fresh-user run, set `FLOWMONEY_E2E_SIGNUP_EMAIL` and `FLOWMONEY_E2E_SIGNUP_PASSWORD` to a unique disposable identity; if Clerk requires email verification, also provide `FLOWMONEY_E2E_SIGNUP_CODE`. Alternatively, set `FLOWMONEY_E2E_EMAIL` and `FLOWMONEY_E2E_PASSWORD` to a pre-created dedicated test user. The journey creates financial data, changes the currency preference, deletes the FlowMoney profile, and signs in again to verify a fresh onboarding state; do not point it at a personal or production account. The journey is skipped when neither credential pair is supplied. A separate sign-up route smoke check runs when the Clerk publishable key is configured. A signup email must be unique and unused for each run.
+The Playwright journey is available with `pnpm --filter @flowmoney/web test:e2e`. Install its browser once with `pnpm --filter @flowmoney/web exec playwright install chromium`, start the API with a test database, and configure the web app with the matching Clerk test instance. For a complete fresh-user run, set `FLOWMONEY_E2E_SIGNUP_EMAIL` and `FLOWMONEY_E2E_SIGNUP_PASSWORD` to a unique disposable identity; if Clerk requires email verification, also provide `FLOWMONEY_E2E_SIGNUP_CODE`. Alternatively, set `FLOWMONEY_E2E_EMAIL` and `FLOWMONEY_E2E_PASSWORD` to a pre-created dedicated test user. Set `FLOWMONEY_E2E_DISPOSABLE=true` to explicitly enable the destructive journey. The journey creates financial data, changes the currency preference, deletes the FlowMoney profile, and signs in again to verify a fresh onboarding state; do not point it at a personal or production account. The journey is skipped when neither credential pair is supplied. A separate sign-up route smoke check runs when the Clerk publishable key is configured. A signup email must be unique and unused for each run.
 
 The API user-service suite also covers verified-email recovery, non-relinking after deletion, financial-data deletion, and repeated deletion: `pnpm --filter @flowmoney/api test -- src/users/users.service.spec.ts`.
 
@@ -201,3 +201,17 @@ A repository-level license has not yet been established. The root manifest curre
 See [Statement Insights v1](docs/statement-insights.md) for supported file layouts, the review/import API, privacy limits, and database migration steps.
 
 Monthly category planning, recorded spending and confirmed statement-to-plan actions: [Monthly planning](docs/monthly-planning.md).
+
+
+## Release validation
+
+See [the private-alpha release checklist](docs/private-alpha-checklist.md) for verified results,
+deployment settings, dedicated Clerk QA setup and the staged alpha rollout.
+`Quality` runs dependency installation, client generation, typechecking, regression tests and both
+production builds on pull requests. `Authenticated release QA` is manually dispatched with the
+`DISPOSABLE` confirmation and uses an isolated PostgreSQL service. Configure its four `QA_*`
+secrets in the `private-alpha-qa` GitHub environment; never use a personal or production identity.
+
+The API now reads `WEB_ORIGIN` (comma-separated exact HTTP(S) origins). Production startup fails
+when it is absent or malformed. Configure the deployed web origin without a path/trailing slash;
+development defaults to localhost and 127.0.0.1 on port 3000. This does not change Clerk authentication.

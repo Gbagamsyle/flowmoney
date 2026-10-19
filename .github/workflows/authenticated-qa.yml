@@ -1,0 +1,75 @@
+name: Authenticated release QA
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_disposable:
+        description: "Type DISPOSABLE to confirm the configured Clerk identity is reserved for destructive QA"
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  journey:
+    if: inputs.confirm_disposable == 'DISPOSABLE'
+    environment: private-alpha-qa
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: flowmoney
+          POSTGRES_PASSWORD: disposable-ci-only
+          POSTGRES_DB: flowmoney_qa
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd 'pg_isready -U flowmoney -d flowmoney_qa'
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://flowmoney:disposable-ci-only@localhost:5432/flowmoney_qa
+      DIRECT_URL: postgresql://flowmoney:disposable-ci-only@localhost:5432/flowmoney_qa
+      WEB_ORIGIN: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3001
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.QA_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.QA_CLERK_SECRET_KEY }}
+      FLOWMONEY_E2E_EMAIL: ${{ secrets.QA_USER_EMAIL }}
+      FLOWMONEY_E2E_PASSWORD: ${{ secrets.QA_USER_PASSWORD }}
+      FLOWMONEY_E2E_DISPOSABLE: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+      - name: Require dedicated QA credentials
+        shell: bash
+        run: |
+          for key in NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY CLERK_SECRET_KEY FLOWMONEY_E2E_EMAIL FLOWMONEY_E2E_PASSWORD; do
+            if [ -z "${!key}" ]; then echo "Missing QA setting: $key"; exit 1; fi
+          done
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @flowmoney/api db:generate
+      - run: pnpm --filter @flowmoney/api db:migrate:deploy
+      - run: pnpm build:api
+      - run: pnpm --filter @flowmoney/web exec playwright install --with-deps chromium
+      - name: Start API
+        run: node apps/api/dist/main.js > /tmp/flowmoney-api.log 2>&1 &
+      - name: Wait for authenticated API boundary
+        shell: bash
+        run: |
+          for attempt in {1..60}; do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/planning)" = '401' ]; then exit 0; fi
+            sleep 1
+          done
+          echo 'API did not become ready'; exit 1
+      - run: pnpm --filter @flowmoney/web test:e2e -- core-journey.spec.ts
+      # Screenshots use synthetic financial data. Do not upload traces containing auth tokens.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: responsive-screenshots
+          path: apps/web/test-results/**/*.png
+          retention-days: 7

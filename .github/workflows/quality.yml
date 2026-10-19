@@ -1,0 +1,35 @@
+name: Quality
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Synthetic key for compilation only. No live Clerk requests or user data.
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Zmxvd21vbmV5LWNpLmNsZXJrLmFjY291bnRzLmRldiQ
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      PLAYWRIGHT_SKIP_WEBSERVER: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @flowmoney/api db:generate
+      - run: pnpm --filter @flowmoney/calculations build
+      - run: pnpm typecheck
+      - run: pnpm --filter @flowmoney/api test -- --maxWorkers=1
+      - run: pnpm --filter @flowmoney/web test:e2e -- calculator.spec.ts dashboard-view.spec.ts planning-inputs.spec.ts statement-filters.spec.ts
+      - run: pnpm build
+      - run: pnpm build:api
