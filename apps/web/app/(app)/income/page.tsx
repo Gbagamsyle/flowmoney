@@ -119,8 +119,8 @@ export default function IncomePage() {
         </section>
       ) : <section className="divide-y rounded-xl border bg-card px-5 shadow-sm">
         {items.map((item) => <article key={item.id} className="flex flex-wrap items-center justify-between gap-4 py-5">
-          <div><h2 className="font-medium">{item.title}</h2><p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground"><CalendarDays className="size-3.5" />{new Intl.DateTimeFormat("en-NG", { day: "numeric", month: "short", year: "numeric" }).format(new Date(item.expectedDate))}<span>·</span>{item.confidence.toLowerCase()}<span>·</span>{item.status.toLowerCase()}</p></div>
-          <p className="text-lg font-semibold tabular-nums">{formatMoney(Number(item.amount), currency)}</p>
+          <div className="min-w-0 flex-1 basis-48"><h2 className="break-words font-medium">{item.title}</h2><p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground"><CalendarDays className="size-3.5" />{new Intl.DateTimeFormat("en-NG", { day: "numeric", month: "short", year: "numeric" }).format(new Date(item.expectedDate))}<span>·</span>{item.confidence.toLowerCase()}<span>·</span>{item.status.toLowerCase()}</p></div>
+          <p className="max-w-full break-all text-lg font-semibold tabular-nums">{formatMoney(Number(item.amount), currency)}</p>
         </article>)}
       </section>}
     </div>

@@ -199,3 +199,5 @@ A repository-level license has not yet been established. The root manifest curre
 ## Statement Insights
 
 See [Statement Insights v1](docs/statement-insights.md) for supported file layouts, the review/import API, privacy limits, and database migration steps.
+
+Monthly category planning, recorded spending and confirmed statement-to-plan actions: [Monthly planning](docs/monthly-planning.md).

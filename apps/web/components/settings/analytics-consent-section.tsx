@@ -25,29 +25,60 @@ export function AnalyticsConsentSection() {
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border bg-card p-5 sm:p-6" aria-labelledby="analytics-consent-title">
+    <section
+      className="space-y-4 rounded-xl border bg-card p-5 sm:p-6"
+      aria-labelledby="analytics-consent-title"
+    >
       <div className="space-y-2">
-        <h2 id="analytics-consent-title" className="text-lg font-semibold">Product analytics</h2>
+        <h2 id="analytics-consent-title" className="text-lg font-semibold">
+          Product analytics
+        </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          Optional usage events help us understand onboarding and feature use. We do not send account names, amounts, income, obligations, or scenario values.
+          Optional usage events help us understand onboarding and feature use.
+          This choice applies to this browser. We do not send account names,
+          amounts, income, obligations, or scenario values.
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         {consent === null ? (
-          <p role="status" className="text-sm text-muted-foreground">Loading analytics preference…</p>
+          <p role="status" className="text-sm text-muted-foreground">
+            Loading analytics preference…
+          </p>
         ) : consent ? (
           <>
-            <p className="text-sm text-muted-foreground">Analytics are enabled.</p>
-            <Button type="button" variant="outline" onClick={() => void updateConsent(false)} disabled={saving}>{saving ? "Updating…" : "Disable analytics"}</Button>
+            <p className="text-sm text-muted-foreground">
+              Analytics are enabled.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void updateConsent(false)}
+              disabled={saving}
+            >
+              {saving ? "Updating…" : "Disable analytics"}
+            </Button>
           </>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground">Analytics are disabled.</p>
-            <Button type="button" variant="outline" onClick={() => void updateConsent(true)} disabled={saving}>{saving ? "Updating…" : "Enable analytics"}</Button>
+            <p className="text-sm text-muted-foreground">
+              Analytics are disabled.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void updateConsent(true)}
+              disabled={saving}
+            >
+              {saving ? "Updating…" : "Enable analytics"}
+            </Button>
           </>
         )}
       </div>
-      {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
     </section>
   );
 }

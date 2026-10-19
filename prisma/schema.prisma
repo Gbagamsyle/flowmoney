@@ -19,6 +19,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  monthlyPlans MonthlyPlan[]
+  planningActions PlanningAction[]
   statementCategoryRules StatementCategoryRule[]
   statementImports StatementImport[]
   accounts       FinancialAccount[]
@@ -88,6 +90,7 @@ model Obligation {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  planPayments PlanTransactionLink[]
   @@index([dueDate])
 }
 
@@ -160,6 +163,8 @@ model StatementTransaction {
   reason String
   approved Boolean @default(false)
   reviewedAt DateTime?
+  planLinks PlanTransactionLink[]
+  planningActions PlanningAction[]
   statement StatementImport @relation(fields: [importId], references: [id], onDelete: Cascade)
   @@unique([importId, sourceRow])
   @@index([importId, approved])
@@ -177,5 +182,73 @@ model StatementCategoryRule {
   updatedAt DateTime @updatedAt
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([userId, counterpartyKey, direction, currency], map: "StatementCategoryRule_match_key")
+  @@index([userId])
+}
+
+model MonthlyPlan {
+  mode String @default("LINKED")
+  startingFundsMinor Decimal @default(0) @db.Decimal(16, 0)
+  id          String                @id @default(cuid())
+  userId      String
+  month       String
+  currency    String
+  bufferMinor Decimal               @default(0) @db.Decimal(16, 0)
+  revision    Int                   @default(0)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories  PlanCategory[]
+  links       PlanTransactionLink[]
+
+  @@unique([userId, month, mode])
+}
+
+model PlanCategory {
+  id             String                @id @default(cuid())
+  planId         String
+  name           String
+  group          String
+  kind           String
+  position       Int
+  allocatedMinor Decimal               @default(0) @db.Decimal(16, 0)
+  targetMinor    Decimal               @default(0) @db.Decimal(16, 0)
+  savedMinor     Decimal               @default(0) @db.Decimal(16, 0)
+  targetDate     DateTime?             @db.Date
+  matches        Json                  @default("[]")
+  plan           MonthlyPlan           @relation(fields: [planId], references: [id], onDelete: Cascade)
+  links          PlanTransactionLink[]
+
+  @@index([planId])
+}
+
+model PlanTransactionLink {
+  id            String               @id @default(cuid())
+  planId        String
+  transactionId String
+  categoryId    String?
+  obligationId  String?
+  ignored       Boolean              @default(false)
+  plan          MonthlyPlan          @relation(fields: [planId], references: [id], onDelete: Cascade)
+  transaction   StatementTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  category      PlanCategory?        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  obligation    Obligation?          @relation(fields: [obligationId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, transactionId])
+  @@index([transactionId])
+  @@index([categoryId])
+  @@index([obligationId])
+}
+
+model PlanningAction {
+  id            String               @id @default(cuid())
+  userId        String
+  transactionId String
+  kind          String
+  recordId      String
+  createdAt     DateTime             @default(now())
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction   StatementTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@unique([transactionId, kind])
   @@index([userId])
 }

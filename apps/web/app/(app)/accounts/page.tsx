@@ -185,7 +185,7 @@ export default function AccountsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Current Funds</h1>
 
@@ -304,11 +304,10 @@ export default function AccountsPage() {
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {funds.map((fund) => (
-              <div key={fund.id} className="rounded-xl border bg-card p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{fund.name}</p>
-                    <p className="mt-2 text-2xl font-semibold tracking-tight">
+              <div key={fund.id} className="min-w-0 rounded-xl border bg-card p-4">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1 basis-40"><p className="break-words text-sm text-muted-foreground">{fund.name}</p>
+                    <p className="mt-2 break-all text-2xl font-semibold tracking-tight tabular-nums">
                       {formatMoney(Number(fund.balance ?? 0), currency)}
                     </p>
                   </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
 import { CURRENCIES } from "@/lib/currencies";
@@ -33,6 +34,7 @@ type Row = {
   counterparty?: { key: string; name: string } | null;
   confidence: number;
   reason: string;
+  originalReason?: string;
   approved: boolean;
 };
 type History = {
@@ -385,6 +387,11 @@ export default function StatementsPage() {
                 : "This preview includes all extracted transactions. Category totals follow your current purpose choices; only selected entries are saved when you import."}{" "}
               Current Funds, Expected Income and Obligations stay unchanged.
             </p>
+            {statement.status === "IMPORTED" && (
+              <Link href="/planning" className="inline-block text-sm underline">
+                Use approved history in your monthly plan
+              </Link>
+            )}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 ["Money entering this account", summary.totalInflow],
@@ -779,6 +786,22 @@ export default function StatementsPage() {
                       {(r.confidence < 0.8 || r.category === "Unknown") &&
                         " You may leave its purpose unspecified."}
                     </p>
+                    <details className="mb-3 text-xs text-muted-foreground">
+                      <summary className="cursor-pointer">
+                        Why this suggestion?
+                      </summary>
+                      <p className="mt-2">{r.reason}</p>
+                      <p className="mt-2">
+                        Original parsed category:{" "}
+                        {categoryName(r.parsedCategory)}.{" "}
+                        {r.originalReason ?? r.reason}
+                      </p>
+                      <p className="mt-2">
+                        Suggestions are rules, not guaranteed probabilities.
+                        Your review choices do not rewrite the original
+                        description.
+                      </p>
+                    </details>
                     {statement.status === "REVIEW" ? (
                       <div className="flex flex-wrap items-center gap-4">
                         <label>

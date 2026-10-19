@@ -25,7 +25,10 @@ export function DeleteAccountSection() {
 
     try {
       const token = await getToken();
-      if (!token) throw new Error("Your session has expired. Sign in again before deleting your account.");
+      if (!token)
+        throw new Error(
+          "Your session has expired. Sign in again before deleting your account.",
+        );
 
       const response = await fetch(`${API_BASE_URL}/users/me`, {
         method: "DELETE",
@@ -33,7 +36,9 @@ export function DeleteAccountSection() {
       });
 
       if (!response.ok) {
-        throw new Error(`Account deletion failed (HTTP ${response.status}). Please try again.`);
+        throw new Error(
+          `Account deletion failed (HTTP ${response.status}). Please try again.`,
+        );
       }
 
       clearLocalAccountState(userId ?? undefined);
@@ -41,22 +46,38 @@ export function DeleteAccountSection() {
       router.replace("/");
       router.refresh();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not delete your account. Please try again.");
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Could not delete your account. Please try again.",
+      );
       setDeleting(false);
     }
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-destructive/30 bg-destructive/[0.03] p-5 sm:p-6" aria-labelledby="delete-account-title">
+    <section
+      className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/[0.03] p-5 sm:p-6"
+      aria-labelledby="delete-account-title"
+    >
       <div className="space-y-2">
-        <h2 id="delete-account-title" className="text-lg font-semibold">Delete FlowMoney account</h2>
+        <h2 id="delete-account-title" className="text-lg font-semibold">
+          Delete FlowMoney account
+        </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          This permanently removes your saved accounts, expected income, obligations, and onboarding progress from FlowMoney. Your Clerk sign-in identity is not deleted. If you return later, you can start with a new, empty FlowMoney profile.
+          This permanently removes your saved accounts, expected income,
+          obligations, monthly plans and planning actions, statement imports and
+          transactions, remembered categorization rules, and onboarding progress
+          from FlowMoney. Your Clerk sign-in identity is not deleted. If you
+          return later, you can start with a new, empty FlowMoney profile.
         </p>
       </div>
 
       <form onSubmit={deleteAccount} className="space-y-3">
-        <label className="block space-y-2 text-sm font-medium" htmlFor="delete-account-confirmation">
+        <label
+          className="block space-y-2 text-sm font-medium"
+          htmlFor="delete-account-confirmation"
+        >
           Type <span className="font-mono">DELETE</span> to confirm
           <input
             id="delete-account-confirmation"
@@ -68,9 +89,17 @@ export function DeleteAccountSection() {
           />
         </label>
 
-        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+        {error && (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
 
-        <Button type="submit" variant="destructive" disabled={!isLoaded || deleting || confirmation !== "DELETE"}>
+        <Button
+          type="submit"
+          variant="destructive"
+          disabled={!isLoaded || deleting || confirmation !== "DELETE"}
+        >
           {deleting ? "Deleting account…" : "Delete my FlowMoney data"}
         </Button>
       </form>
