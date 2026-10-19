@@ -1,6 +1,18 @@
-import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import {
+  expect,
+  test,
+  type Page,
+  type TestInfo,
+  type Locator,
+} from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
-test.use({ trace: "off" });
+test.use({
+  trace: "off",
+  screenshot: "only-on-failure",
+  actionTimeout: 30_000,
+  navigationTimeout: 90_000,
+});
 
 const disposable = process.env.FLOWMONEY_E2E_DISPOSABLE === "true";
 
@@ -12,25 +24,97 @@ const signupCode = process.env.FLOWMONEY_E2E_SIGNUP_CODE;
 const authEmail = signupEmail ?? email;
 const authPassword = signupPassword ?? password;
 
+test.beforeEach(async ({ page }) => {
+  const token = process.env.CLERK_TESTING_TOKEN;
+  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  if (!token || !key?.startsWith("pk_test_")) return;
+  const host = Buffer.from(key.slice(8), "base64")
+    .toString()
+    .replace(/\$$/, "");
+  await page.route(`https://${host}/v1/**`, async (route) => {
+    const url = new URL(route.request().url());
+    url.searchParams.set("__clerk_testing_token", token);
+    await route.continue({ url: url.toString() });
+  });
+});
+
 async function signIn(page: Page) {
   await page.goto("/sign-in");
+  await page
+    .getByLabel(/email address/i)
+    .waitFor({ state: "visible", timeout: 60_000 });
   await page.getByLabel(/email address/i).fill(authEmail!);
-  const continueButton = page.getByRole("button", { name: /continue/i });
-  if (await continueButton.isVisible().catch(() => false))
+  const continueButton = page.getByRole("button", { name: /^continue$/i });
+  if (!(await page.getByLabel(/^password$/i).isVisible()))
     await continueButton.click();
-  await page.getByLabel(/password/i).fill(authPassword!);
-  await page.getByRole("button", { name: /continue|sign in/i }).click();
-  await expect(page).not.toHaveURL(/sign-in/);
+  await page.getByLabel(/^password$/i).fill(authPassword!);
+  const prepared = page
+    .waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname.endsWith("/prepare_second_factor") &&
+        response.request().method() === "POST",
+      { timeout: 30_000 },
+    )
+    .catch(() => null);
+  await page.getByRole("button", { name: /^(continue|sign in)$/i }).click();
+  await page.waitForURL(
+    (url) =>
+      !url.pathname.startsWith("/sign-in") ||
+      url.pathname.includes("client-trust"),
+    { timeout: 30_000 },
+  );
+  if (page.url().includes("client-trust")) {
+    // Clerk's fixed OTP is valid only for reserved test addresses on a test instance.
+    expect(authEmail).toContain("+clerk_test");
+    expect(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY).toMatch(/^pk_test_/);
+    const preparation = await prepared;
+    expect(
+      preparation?.ok(),
+      "Clerk must prepare its test verification code before entry",
+    ).toBe(true);
+    const attempt = page
+      .waitForResponse(
+        (response) =>
+          new URL(response.url()).pathname.endsWith("/attempt_second_factor") &&
+          response.request().method() === "POST",
+        { timeout: 2_000 },
+      )
+      .catch(() => null);
+    const digits = page.locator(
+      'input[autocomplete="one-time-code"]:visible, input[inputmode="numeric"]:visible',
+    );
+    await digits.first().waitFor({ state: "visible", timeout: 30_000 });
+    const count = await digits.count();
+    if (count === 6) {
+      for (const [index, digit] of [..."424242"].entries())
+        await digits.nth(index).fill(digit);
+    } else {
+      expect(count).toBe(1);
+      await digits.fill("424242");
+    }
+    const automaticAttempt = await attempt;
+    if (automaticAttempt) expect(automaticAttempt.ok()).toBe(true);
+    else {
+      const manualAttempt = page.waitForResponse(
+        (response) =>
+          new URL(response.url()).pathname.endsWith("/attempt_second_factor") &&
+          response.request().method() === "POST",
+      );
+      await page.getByRole("button", { name: /^(continue|verify)$/i }).click();
+      expect((await manualAttempt).ok()).toBe(true);
+    }
+  }
+  await expect(page).not.toHaveURL(/sign-in/, { timeout: 30_000 });
 }
 
 async function signUp(page: Page) {
   await page.goto("/sign-up");
   await page.getByLabel(/email address/i).fill(signupEmail!);
-  await page.getByLabel(/password/i).fill(signupPassword!);
-  await page.getByRole("button", { name: /continue/i }).click();
+  await page.getByLabel(/^password$/i).fill(signupPassword!);
+  await page.getByRole("button", { name: /^continue$/i }).click();
   if (signupCode) {
     await page.getByLabel(/verification code/i).fill(signupCode);
-    await page.getByRole("button", { name: /continue|verify/i }).click();
+    await page.getByRole("button", { name: /^(continue|verify)$/i }).click();
   }
   await expect(page).not.toHaveURL(/sign-up/);
   await expect(
@@ -39,12 +123,15 @@ async function signUp(page: Page) {
 }
 
 test("Clerk sign-up route is available", async ({ page }) => {
+  test.setTimeout(120_000);
   test.skip(
     !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     "Set Clerk web keys to run auth UI checks.",
   );
   await page.goto("/sign-up");
-  await expect(page.getByLabel(/email address/i)).toBeVisible();
+  await expect(page.getByLabel(/email address/i)).toBeVisible({
+    timeout: 60_000,
+  });
 });
 
 test("onboarding, statements, both planning modes, responsive pages, settings, deletion, and restart", async ({
@@ -88,7 +175,13 @@ test("onboarding, statements, both planning modes, responsive pages, settings, d
 
   await page.getByPlaceholder("Rent").fill("E2E rent");
   await page.getByPlaceholder("120000").fill("120000");
+  const commitmentSaved = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === "/obligations" &&
+      response.request().method() === "POST",
+  );
   await page.getByRole("button", { name: /save & review/i }).click();
+  expect((await commitmentSaved).ok()).toBe(true);
   await expect(
     page.getByRole("heading", { name: /a clearer cash view is ready/i }),
   ).toBeVisible();
@@ -301,46 +394,73 @@ async function responsivePages(page: Page, testInfo: TestInfo) {
     "calculator",
     "settings",
   ];
-  for (const viewport of views) {
-    await page.setViewportSize(viewport);
-    for (const theme of ["light", "dark"]) {
-      await page.goto("/settings");
+  for (const route of routes) {
+    await page.goto(`/${route}`);
+    if (route === "statements") {
       await page
-        .getByRole("radio", {
-          name: theme === "light" ? "Light" : "Dark",
+        .getByRole("button", { name: /CSV.*USD.*Saved to history/ })
+        .click();
+      await expect(
+        page.getByRole("heading", {
+          name: "Transaction breakdown",
           exact: true,
-        })
-        .check();
-      for (const route of routes) {
-        await page.goto(`/${route}`);
-        if (route === "statements") {
-          await page
-            .getByRole("button", { name: /CSV.*USD.*Saved to history/ })
-            .click();
-          await expect(
-            page.getByText("Category totals", { exact: false }).first(),
-          ).toBeVisible();
-        }
-        await expect(page.locator("main")).toBeVisible();
-        await expect(
-          page.locator("main").getByRole("heading").first(),
-        ).toBeVisible();
+        }),
+      ).toBeVisible();
+    }
+    const contentByRoute: Partial<Record<string, Locator>> = {
+      dashboard: page.getByText("$400,000", { exact: true }).first(),
+      accounts: page.getByText(/\$400,000/).first(),
+      income: page.getByText("E2E consulting income", { exact: true }),
+      obligations: page.getByText("E2E rent", { exact: true }),
+      planning: page.getByRole("button", { name: "Edit plan", exact: true }),
+      scenarios: page.getByText("$240,000", { exact: true }).first(),
+      settings: page.getByRole("link", {
+        name: "ogabasyle@gmail.com",
+        exact: true,
+      }),
+    };
+    const content = contentByRoute[route];
+    if (content) await expect(content).toBeVisible();
+    if (route === "settings")
+      await expect(page.getByLabel("Currency", { exact: true })).toBeEnabled();
+    const heading = page.locator("main").getByRole("heading").first();
+    await expect(heading).toBeVisible();
+    for (const viewport of views) {
+      await page.setViewportSize(viewport);
+      for (const theme of ["light", "dark"]) {
+        await heading.click();
+        const dark = await page
+          .locator("html")
+          .evaluate((element) => element.classList.contains("dark"));
+        if (dark !== (theme === "dark")) await page.keyboard.press("d");
+        if (theme === "dark")
+          await expect(page.locator("html")).toHaveClass(/dark/);
+        else await expect(page.locator("html")).not.toHaveClass(/dark/);
         await expect
           .poll(
             () =>
               page.evaluate(
-                () =>
-                  document.documentElement.scrollWidth <= window.innerWidth + 1,
+                () => document.documentElement.scrollWidth <= innerWidth + 1,
               ),
             { message: `${route} overflows at ${viewport.name}/${theme}` },
           )
           .toBe(true);
+        if (viewport.name === "desktop") {
+          const result = await new AxeBuilder({ page })
+            .include("main")
+            .analyze();
+          expect(
+            result.violations.map(({ id, impact }) => ({ id, impact })),
+            `${route}/${theme} accessibility`,
+          ).toEqual([]);
+        }
         await page.screenshot({
           path: testInfo.outputPath(`${route}-${viewport.name}-${theme}.png`),
           fullPage: true,
         });
       }
     }
+    console.log(`Completed responsive ${route}`);
   }
   await page.setViewportSize({ width: 390, height: 844 });
 }

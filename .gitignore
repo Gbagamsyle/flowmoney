@@ -47,3 +47,6 @@ pnpm-debug.log*
 **/test-results/
 **/playwright-report/
 **/blob-report/
+
+# Isolated local browser QA build output
+.next-qa/

@@ -55,6 +55,24 @@ jobs:
       - run: pnpm --filter @flowmoney/api db:migrate:deploy
       - run: pnpm build:api
       - run: pnpm --filter @flowmoney/web exec playwright install --with-deps chromium
+      - name: Issue Clerk development testing token
+        shell: bash
+        run: |
+          node <<'NODE'
+          const { createRequire } = require('node:module');
+          const { appendFileSync } = require('node:fs');
+          const req = createRequire(process.cwd() + '/apps/api/package.json');
+          const { createClerkClient } = req('@clerk/backend');
+          (async () => {
+            if (!process.env.CLERK_SECRET_KEY.startsWith('sk_test_')) {
+              throw new Error('Authenticated QA requires a Clerk test instance.');
+            }
+            const client = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+            const { token } = await client.testingTokens.createTestingToken();
+            console.log('::add-mask::' + token);
+            appendFileSync(process.env.GITHUB_ENV, 'CLERK_TESTING_TOKEN=' + token + '\n');
+          })().catch(() => { console.error('Could not issue Clerk QA testing token'); process.exit(1); });
+          NODE
       - name: Start API
         run: node apps/api/dist/main.js > /tmp/flowmoney-api.log 2>&1 &
       - name: Wait for authenticated API boundary
