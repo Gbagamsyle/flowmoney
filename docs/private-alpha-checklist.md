@@ -16,9 +16,9 @@ or an owner decision. Passing unit tests is not evidence of real authentication 
 
 ## Before merging
 
-- [ ] GitHub Quality workflow passes on the final PR commit. Configure branch protection to require it.
+- [ ] GitHub Quality workflow passes on the final PR commit. The first run was blocked before any steps: GitHub reported that the account is locked due to a billing issue. Resolve account billing, then rerun Quality; hosted CI is not verified. Configure branch protection to require it.
 - [ ] Review the PR, especially the production WEB_ORIGIN requirement and the preserved logo changes.
-- [ ] Run Authenticated release QA with the dedicated test identity; inspect responsive screenshots.
+- [ ] Run the dedicated authenticated journey locally before merge if credentials are available. Otherwise keep the release gated until Authenticated release QA can be dispatched after the workflow is on the default branch; inspect its responsive screenshots before inviting testers.
 - [x] Responsive component audit: 220 checks across 10 emulated viewport sizes, including forms, individual statement review, planning edits and onboarding; no overflow or runtime errors. See [the result record](qa/responsive-2026-10-19.json). This used synthetic auth/API responses and does not prove live integration.
 
 ## Authenticated QA setup
