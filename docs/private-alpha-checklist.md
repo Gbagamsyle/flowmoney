@@ -32,6 +32,10 @@ or an owner decision. Passing unit tests is not evidence of real authentication 
   checks passed. [Result record](qa/live-browser-2026-10-19.json). The full authenticated journey also passed, including currency confirmation, deletion and fresh onboarding.
   Both browser tests passed; the temporary Clerk identity and database were removed.
 
+- [x] Reran both authenticated browser tests on 20 October, including walkthrough welcome,
+  skip and Settings replay; 54 responsive captures and 18 desktop accessibility checks passed.
+  Temporary test resources were removed. [Latest live result](qa/live-browser-2026-10-20.json).
+
 ## Before merging
 
 - [ ] GitHub Quality workflow passes on the final PR commit. The first run was blocked before any steps: GitHub reported that the account is locked due to a billing issue. Resolve account billing, then rerun Quality; hosted CI is not verified. Configure branch protection to require it.
