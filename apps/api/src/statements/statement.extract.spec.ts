@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import ExcelJS from 'exceljs';
 import { zipSync, strToU8 } from 'fflate';
-import { extract } from './statement.extract.js';
+import { extract, MAX_PDF_PAGES } from './statement.extract.js';
 import { parseTable } from './statement.logic.js';
 
-function pdf(lines: string[][]) {
+function pdf(lines: string[][], pageCount = 1) {
   const stream = lines
     .map((cells, row) =>
       cells
@@ -17,11 +17,12 @@ function pdf(lines: string[][]) {
     .join('\n');
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
-    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    `<< /Type /Pages /Kids [${Array.from({ length: pageCount }, (_, i) => `${i === 0 ? 3 : i + 5} 0 R`).join(' ')}] /Count ${pageCount} >>`,
     '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 650 800] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
     `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
   ];
+  for (let i = 1; i < pageCount; i++) objects.push(objects[2]);
   let text = '%PDF-1.4\n';
   const offsets = [0];
   objects.forEach((object, i) => {
@@ -29,10 +30,12 @@ function pdf(lines: string[][]) {
     text += `${i + 1} 0 obj\n${object}\nendobj\n`;
   });
   const xref = text.length;
-  text += `xref\n0 6\n0000000000 65535 f \n${offsets
+  text += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets
     .slice(1)
     .map((n) => String(n).padStart(10, '0') + ' 00000 n \n')
-    .join('')}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    .join(
+      '',
+    )}trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
   return Buffer.from(text);
 }
 describe('binary statement extraction', () => {
@@ -52,6 +55,27 @@ describe('binary statement extraction', () => {
       amountMinor: 1250,
       direction: 'OUT',
     });
+  }, 20000);
+  it('accepts a bounded digital statement longer than 100 pages', async () => {
+    const table = await extract(
+      pdf(
+        [
+          ['Date', 'Description', 'Amount'],
+          ['2026-01-01', 'Synthetic purchase', '-12.50'],
+        ],
+        207,
+      ),
+      'PDF',
+    );
+    expect(parseTable(table, 'NGN')).toHaveLength(207);
+  }, 60000);
+  it('explains the PDF page limit without claiming the document is malformed', async () => {
+    await expect(
+      extract(
+        pdf([['Date', 'Description', 'Amount']], MAX_PDF_PAGES + 1),
+        'PDF',
+      ),
+    ).rejects.toThrow('exceeds the 250-page limit');
   }, 20000);
   it('rejects a PDF without readable transactions without OCR', async () => {
     await expect(

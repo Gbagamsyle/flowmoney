@@ -3,6 +3,7 @@ import { csvTable } from './statement.logic.js';
 import { pdfPositionTable, type PdfPage } from './pdf-layout.js';
 
 export const MAX_BYTES = 5 * 1024 * 1024;
+export const MAX_PDF_PAGES = 250;
 // Isolate binary parsers from API heap and enforce a deadline. No file is written.
 export async function extract(
   buffer: Buffer,
@@ -23,7 +24,7 @@ export async function extract(
           const task = getDocument({ data: new Uint8Array(bytes), isEvalSupported: false, useSystemFonts: false, disableFontFace: true, verbosity: 0 });
           try {
             const document = await task.promise;
-            if (document.numPages > 100) throw Error('limit');
+            if (document.numPages > workerData.maxPdfPages) throw Error('PDF_PAGE_LIMIT');
             const pages = []; let characters = 0, itemCount = 0;
             for (let number = 1; number <= document.numPages; number++) {
               const page = await document.getPage(number);
@@ -31,7 +32,7 @@ export async function extract(
               const items = [];
               for (const item of content.items) if ('str' in item) {
                 characters += item.str.length; itemCount++;
-                if (characters > 2000000 || itemCount > 100000) throw Error('limit');
+                if (characters > 2000000 || itemCount > 100000) throw Error('PDF_TEXT_LIMIT');
                 items.push({ text: item.str, x: item.transform[4], y: item.transform[5], width: item.width });
               }
               pages.push({ items }); page.cleanup();
@@ -66,7 +67,7 @@ export async function extract(
           process.send({ rows });
         }
       } finally { bytes.fill(0); }
-    })().catch(() => { process.send({ error: true }); });
+    })().catch((error) => { process.send({ error: true, reason: ['PDF_PAGE_LIMIT', 'PDF_TEXT_LIMIT'].includes(error.message) ? error.message : error.name === 'PasswordException' ? 'PDF_PASSWORD' : undefined }); });
     });
   `;
   return new Promise((resolve, reject) => {
@@ -87,6 +88,7 @@ export async function extract(
       bytes: buffer.toString('base64'),
       format,
       pdfUrl,
+      maxPdfPages: MAX_PDF_PAGES,
       excelUrl,
       zipUrl,
     });
@@ -115,11 +117,22 @@ export async function extract(
     );
     worker.once(
       'message',
-      (message: { error?: boolean; pages?: PdfPage[]; rows?: unknown[][] }) => {
+      (message: {
+        error?: boolean;
+        reason?: string;
+        pages?: PdfPage[];
+        rows?: unknown[][];
+      }) => {
         if (message.error)
           finish(
             new Error(
-              'Unsupported, encrypted, oversized or malformed document. Use an unprotected single-sheet XLSX or a readable PDF table; CSV is recommended.',
+              message.reason === 'PDF_PAGE_LIMIT'
+                ? `This PDF exceeds the ${MAX_PDF_PAGES}-page limit. Export a shorter date range or use CSV/XLSX.`
+                : message.reason === 'PDF_TEXT_LIMIT'
+                  ? 'This PDF contains too much text to process safely. Export a shorter date range or use CSV/XLSX.'
+                  : message.reason === 'PDF_PASSWORD'
+                    ? 'This PDF requires a password. Upload an unprotected statement or use CSV/XLSX.'
+                    : 'Unsupported or malformed document. Use an unprotected single-sheet XLSX or a readable PDF table; CSV is recommended.',
             ),
           );
         else {
