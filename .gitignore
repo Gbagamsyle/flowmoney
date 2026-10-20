@@ -50,3 +50,7 @@ pnpm-debug.log*
 
 # Isolated local browser QA build output
 .next-qa/
+
+# Provider-local project metadata (never credentials in source)
+.vercel/
+.render/

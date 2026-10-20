@@ -5,9 +5,9 @@ or an owner decision. Passing unit tests is not evidence of real authentication 
 
 ## Verified locally
 
-- [x] 205 API tests pass across 27 files, including origin configuration, parsing, classification,
+- [x] 212 API tests pass across 28 files, including origin configuration, parsing, classification,
   summaries, owner boundaries, plan isolation and account deletion regression coverage.
-- [x] 18 web logic tests pass (analytics consent, calculator, overview, currency formatting, planning inputs and statement filters).
+- [x] 24 web logic tests pass (analytics consent, privacy filtering, PWA cache boundaries, calculator, overview, currency formatting, planning inputs and statement filters).
 - [x] Web TypeScript check and web/API production builds pass.
 - [x] Frozen dependency installation succeeds with the committed lockfile.
 - [x] Browser suite discovers the extended authenticated journey.
@@ -71,7 +71,7 @@ See the [live browser result](qa/live-browser-2026-10-19.json). No persistent di
 
 ## Current local scope
 
-The owner confirmed local-only verification. There is no staging/deployed URL to sign off.
+Initial verification was local-only. Deployment preparation is now authorised, and the owner will import the repository into the hosting providers. There is no staging/deployed URL to sign off yet.
 The initial clean-install QA exposed a missing direct Tailwind dependency in the shared UI package;
 this is now declared and locked, and the clean production build passes. Local QA uses `.next-qa`
 so it does not share the active development build cache. The 127.0.0.1 development origin is explicitly
@@ -115,3 +115,14 @@ see [Clerk testing guidance](https://clerk.com/docs/guides/development/testing/o
 
 Figma synchronization is separate design documentation work; remaining screens and visual QA are
 pending connector quota availability. It is not evidence that deployed product QA has passed.
+
+## Legal and privacy launch gate
+
+- [x] GeeTech operator and privacy inbox confirmed; public draft pages, upload notice, disclaimer links and diagnostic filtering implemented.
+- [ ] Complete [privacy release register](privacy-release.json) and [implementation/DPIA review](privacy-readiness.md); run `pnpm preflight:privacy`. The draft is not launch approval.
+- [ ] Confirm production vendor regions/contracts, retention and backup restore/deletion handling; configure Clerk Terms/Privacy URLs.
+- [ ] Obtain professional review, assess applicable NDPC registration, rehearse rights/incident workflows, set final effective date and update published notices.
+
+## Deployment and installable app
+
+Use the [Vercel/Render import guide](deployment.md), then verify the actual deployed URLs and Clerk redirects. Preview is configured without a paid service or automatic deployments. PWA financial data remains online-only. Physical-device installation and production release approval remain deployment checks.

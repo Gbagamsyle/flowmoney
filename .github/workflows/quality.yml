@@ -30,6 +30,6 @@ jobs:
       - run: pnpm --filter @flowmoney/calculations build
       - run: pnpm typecheck
       - run: pnpm --filter @flowmoney/api test -- --maxWorkers=1
-      - run: pnpm --filter @flowmoney/web test:e2e -- analytics-consent.spec.ts currency-format.spec.ts calculator.spec.ts dashboard-view.spec.ts planning-inputs.spec.ts statement-filters.spec.ts
+      - run: pnpm --filter @flowmoney/web test:e2e -- analytics-consent.spec.ts privacy-security.spec.ts pwa-worker.spec.ts currency-format.spec.ts calculator.spec.ts dashboard-view.spec.ts planning-inputs.spec.ts statement-filters.spec.ts
       - run: pnpm build
       - run: pnpm build:api

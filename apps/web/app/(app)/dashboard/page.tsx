@@ -1,4 +1,5 @@
 "use client";
+import { FinancialNotice } from "@/components/legal/financial-notice";
 
 import { useAuth, useUser } from "@clerk/nextjs";
 import {
@@ -222,6 +223,7 @@ export default function DashboardPage() {
             </div>
           )}
           <section aria-label="Available to spend" className="space-y-5">
+            <FinancialNotice />
             <FinancialSummaryCard
               label="Safe to spend now"
               value={formatMoney(summary.safeToSpend, dashboardCurrency)}
