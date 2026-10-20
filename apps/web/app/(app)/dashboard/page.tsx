@@ -50,7 +50,7 @@ export default function DashboardPage() {
         signal: controller.signal,
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error("Unable to load Overview");
+      if (!response.ok) { const failure = await response.json().catch(() => ({})); throw new Error(failure.message ?? "Unable to load Overview"); }
       const data = (await response.json()) as DashboardSummary;
       if (controller.signal.aborted) return false;
       setSummary(data);
@@ -58,9 +58,9 @@ export default function DashboardPage() {
       setLoadedAt(new Date());
       setNow(new Date());
       return true;
-    } catch {
+    } catch (e) {
       if (!controller.signal.aborted)
-        setError("We couldn’t refresh your money picture. Please try again.");
+        setError(e instanceof Error ? e.message : "We couldn’t refresh your money picture. Please try again.");
       return false;
     } finally {
       if (activeRequest.current === controller) setLoading(false);
@@ -130,7 +130,7 @@ export default function DashboardPage() {
               className="mt-0.5 size-4 shrink-0"
             />
             <div>
-              <p className="text-sm font-medium">{error}</p>
+              <p className="text-sm font-medium">{error}</p><Link href="/settings#currency-review" className="mt-2 inline-block text-sm underline">Check original currencies in Settings</Link>
               {summary && (
                 <p className="mt-1 text-sm text-muted-foreground">
                   Showing the last loaded figures. Recent changes may be
@@ -211,9 +211,7 @@ export default function DashboardPage() {
                 Review currencies before using these totals
               </p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Accounts use different currencies. These totals combine amounts
-                without exchange-rate conversion and should not be treated as
-                one spendable balance.
+                These figures have not been normalized to one currency. Check the original currencies and refresh Overview before relying on a combined balance.
               </p>
               <Link
                 href="/accounts"

@@ -186,6 +186,7 @@ test("onboarding, statements, both planning modes, responsive pages, settings, d
     page.getByRole("heading", { name: /a clearer cash view is ready/i }),
   ).toBeVisible();
   await page.getByRole("button", { name: /go to my dashboard/i }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
 
   const tour = page.getByRole("dialog");
   await expect(tour).toBeVisible();
@@ -219,13 +220,17 @@ test("onboarding, statements, both planning modes, responsive pages, settings, d
   await page.getByRole("button", { name: "Take the product tour" }).click();
   await expect(page.getByRole("dialog", { name: /A clearer view/ })).toBeVisible();
   await page.keyboard.press("Escape");
+  const convertedDisplay = page.waitForResponse(async (response) =>
+    new URL(response.url()).pathname === "/currencies/display" && response.ok() && (await response.json()).currency === "GBP",
+    { timeout: 90_000 },
+  );
   await page.getByLabel("Currency", { exact: true }).selectOption("GBP");
   await page
     .getByRole("button", { name: "Review change", exact: true })
     .click();
   await page
     .getByRole("checkbox", {
-      name: "I understand that saved amounts will not be converted.",
+      name: "I understand that conversions are estimates and original records stay unchanged.",
     })
     .check();
   await page
@@ -233,9 +238,34 @@ test("onboarding, statements, both planning modes, responsive pages, settings, d
     .click();
   await expect(
     page.getByRole("status").filter({ hasText: /currency has been updated/i }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 60_000 });
+  const conversion = await (await convertedDisplay).json();
+  const fundEstimate = conversion.amounts.find((item: { kind: string }) => item.kind === "ACCOUNT");
+  expect(fundEstimate.amount).toBe("400000");
+  expect(fundEstimate.currency).toBe("USD");
+  expect(fundEstimate.converted).toBeGreaterThan(0);
+  const convertedText = new Intl.NumberFormat("en-NG", { style: "currency", currency: "GBP", currencyDisplay: "narrowSymbol", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(fundEstimate.converted);
   await page.goto("/dashboard");
-  await expect(page.getByText("£400,000")).toBeVisible();
+  await expect(page.getByText(convertedText, { exact: true })).toBeVisible();
+  await page.goto("/accounts");
+  await expect(page.getByText("$400,000.00 original", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Edit", exact: true }).first().click();
+  await expect(page.getByLabel("Amount (USD)")).toHaveValue("400000");
+  await page.goto("/planning");
+  await expect(page.getByLabel("Converted summary")).toContainText("Estimated summary in GBP");
+  await expect(page.getByLabel("Converted summary")).toContainText("stay in USD");
+  await page.goto("/statements");
+  await page.getByRole("button", { name: /CSV.*USD.*Saved to history/ }).first().click();
+  await expect(page.getByLabel("Converted summary")).toContainText("Estimated summary in GBP");
+
+  await page.goto("/settings");
+  await page.getByLabel("Currency", { exact: true }).selectOption("USD");
+  await page.getByRole("button", { name: "Review change", exact: true }).click();
+  await page.getByRole("checkbox", { name: "I understand that conversions are estimates and original records stay unchanged." }).check();
+  await page.getByRole("button", { name: "Confirm currency change", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: /display currency has been updated/i })).toBeVisible({ timeout: 60_000 });
+  await page.goto("/dashboard");
+  await expect(page.getByText("$400,000.00", { exact: true })).toBeVisible();
 
   await page.goto("/settings");
   await page.getByLabel(/type DELETE to confirm/i).fill("DELETE");
@@ -311,7 +341,7 @@ async function statementAndPlanning(page: Page) {
   ).toHaveLength(2);
 
   await page.goto("/dashboard");
-  await expect(page.getByText("$400,000", { exact: true })).toBeVisible();
+  await expect(page.getByText("$400,000.00", { exact: true })).toBeVisible();
 
   await page.goto("/planning");
   await page.getByLabel("Plan month").fill(month);
@@ -419,12 +449,12 @@ async function responsivePages(page: Page, testInfo: TestInfo) {
       ).toBeVisible();
     }
     const contentByRoute: Partial<Record<string, Locator>> = {
-      dashboard: page.getByText("$400,000", { exact: true }).first(),
+      dashboard: page.getByText("$400,000.00", { exact: true }).first(),
       accounts: page.getByText(/\$400,000/).first(),
       income: page.getByText("E2E consulting income", { exact: true }),
       obligations: page.getByText("E2E rent", { exact: true }),
       planning: page.getByRole("button", { name: "Edit plan", exact: true }),
-      scenarios: page.getByText("$240,000", { exact: true }).first(),
+      scenarios: page.getByText("$240,000.00", { exact: true }).first(),
       settings: page.getByRole("link", {
         name: "ogabasyle@gmail.com",
         exact: true,

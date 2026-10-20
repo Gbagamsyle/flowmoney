@@ -5,7 +5,8 @@ import { ArrowRight, CalendarDays, ListChecks, Pencil, Plus, Trash2 } from "luci
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Button } from "@flowmoney/ui/components/button";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
-import { formatMoney } from "@/lib/format-money";
+import { CURRENCIES } from "@/lib/currencies";
+import { MoneyAmount } from "@/components/settings/currency-status";
 import { trackProductEventOnce } from "@/lib/analytics";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -14,8 +15,8 @@ const priorities = ["ESSENTIAL", "IMPORTANT", "FLEXIBLE", "OPTIONAL"] as const;
 const statuses = ["PENDING", "FUNDED", "PAID", "SKIPPED"] as const;
 type Priority = (typeof priorities)[number];
 type Status = (typeof statuses)[number];
-type Obligation = { id: string; title: string; amount: number | string; dueDate: string; priority: Priority; status: Status };
-type FormState = { title: string; amount: string; dueDate: string; priority: Priority };
+type Obligation = { currency: string | null; id: string; title: string; amount: number | string; dueDate: string; priority: Priority; status: Status };
+type FormState = { currency: string; title: string; amount: string; dueDate: string; priority: Priority };
 
 function nextWeek() {
   const date = new Date();
@@ -23,8 +24,8 @@ function nextWeek() {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-function emptyForm(): FormState {
-  return { title: "", amount: "", dueDate: nextWeek(), priority: "ESSENTIAL" };
+function emptyForm(currency = "NGN"): FormState {
+  return { currency, title: "", amount: "", dueDate: nextWeek(), priority: "ESSENTIAL" };
 }
 
 function formatDate(value: string) {
@@ -38,16 +39,18 @@ function statusLabel(status: Status) {
 
 export default function ObligationsPage() {
   const { getToken, isLoaded, isSignedIn, userId } = useAuth();
-  const { currency } = usePreferredCurrency();
+  const { currency, currencyLoading, currencyError } = usePreferredCurrency();
   const [items, setItems] = useState<Obligation[]>([]);
   const [itemsLoaded, setItemsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<FormState>(emptyForm);
+  const [form, setForm] = useState<FormState>(() => emptyForm(currency));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  useEffect(() => { if (!showForm) setForm(emptyForm(currency)); }, [currency, showForm]);
 
   const loadItems = useCallback(async () => {
     const token = await getToken();
@@ -74,7 +77,7 @@ export default function ObligationsPage() {
   const notifyDashboard = () => window.dispatchEvent(new CustomEvent("flowmoney:financial-data-changed"));
 
   const resetForm = () => {
-    setForm(emptyForm());
+    setForm(emptyForm(currency));
     setEditingId(null);
     setShowForm(false);
   };
@@ -82,6 +85,7 @@ export default function ObligationsPage() {
   const startEdit = (item: Obligation) => {
     setEditingId(item.id);
     setForm({
+      currency: item.currency ?? "",
       title: item.title,
       amount: String(item.amount),
       dueDate: item.dueDate.slice(0, 10),
@@ -107,9 +111,9 @@ export default function ObligationsPage() {
       const response = await fetch(editingId ? `${API_BASE_URL}/obligations/${editingId}` : `${API_BASE_URL}/obligations`, {
         method: editingId ? "PATCH" : "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, title: form.title.trim(), amount }),
+        body: JSON.stringify({ ...form, title: form.title.trim(), amount, ...(editingId ? { currency: undefined } : {}) }),
       });
-      if (!response.ok) throw new Error(`Could not save obligation (HTTP ${response.status}).`);
+      if (!response.ok) { const failure = await response.json().catch(() => ({})); throw new Error(failure.message ?? "Could not save obligation."); }
       if (!editingId && itemsLoaded && items.length === 0) void trackProductEventOnce("first_obligation_created", userId ?? undefined);
       resetForm();
       await loadItems();
@@ -171,7 +175,7 @@ export default function ObligationsPage() {
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">Payments & commitments</h1>
           <p className="mt-2 text-muted-foreground">Keep upcoming bills and priorities visible as you plan.</p>
         </div>
-        <Button type="button" onClick={() => showForm ? resetForm() : (setShowForm(true), setError(""))}>
+        <Button type="button" disabled={currencyLoading || !!currencyError} onClick={() => showForm ? resetForm() : (setShowForm(true), setError(""))}>
           <Plus className="mr-2 size-4" />{showForm ? "Close" : "Add obligation"}
         </Button>
       </header>
@@ -189,9 +193,10 @@ export default function ObligationsPage() {
           <input className={inputClass} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Rent" required maxLength={120} />
         </label>
         <label className="space-y-2 text-sm font-medium">
-          Amount ({currency})
+          Amount ({form.currency || "confirm currency first"})
           <input className={inputClass} type="number" min="0.01" step="0.01" inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} placeholder="120000" required />
         </label>
+        <label className="space-y-2 text-sm font-medium">Original currency<select className={inputClass} disabled={!!editingId} value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}><option value="" disabled>Confirm in Settings</option>{CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code}</option>)}</select></label>
         <label className="space-y-2 text-sm font-medium">
           Due date
           <input className={inputClass} type="date" value={form.dueDate} onChange={(event) => setForm({ ...form, dueDate: event.target.value })} required />
@@ -213,7 +218,7 @@ export default function ObligationsPage() {
           <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground"><ListChecks className="size-6" /></div>
           <h2 className="mt-4 text-lg font-semibold">No obligations added yet</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Add bills and commitments you want to account for before deciding what’s safe to spend.</p>
-          <Button className="mt-5" onClick={() => setShowForm(true)}><Plus className="mr-2 size-4" />Add an obligation</Button>
+          <Button className="mt-5" disabled={currencyLoading || !!currencyError} onClick={() => setShowForm(true)}><Plus className="mr-2 size-4" />Add an obligation</Button>
         </section>
       ) : (
         <section className="space-y-3" aria-label="Your obligations">
@@ -223,7 +228,7 @@ export default function ObligationsPage() {
               <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 <CalendarDays className="size-3.5" />Due {formatDate(item.dueDate)}<span>·</span>{item.priority.toLowerCase()}
               </p>
-              <p className="mt-2 break-all text-xl font-semibold tabular-nums">{formatMoney(Number(item.amount), currency)}</p>
+              <p className="mt-2 break-all text-xl font-semibold tabular-nums"><MoneyAmount kind="OBLIGATION" id={item.id} value={item.amount} source={item.currency} /></p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <label className="sr-only" htmlFor={`status-${item.id}`}>Status for {item.title}</label>
