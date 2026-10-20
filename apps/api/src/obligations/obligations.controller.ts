@@ -31,7 +31,14 @@ export class ObligationsController {
   @Post()
   async create(
     @Req() req: { user?: { id?: string } },
-    @Body() body: { title: string; amount: number; dueDate: string; priority: string },
+    @Body()
+    body: {
+      title: string;
+      amount: number;
+      dueDate: string;
+      priority: string;
+      currency?: string;
+    },
   ) {
     if (!req.user?.id) {
       throw new UnauthorizedException();
@@ -45,7 +52,9 @@ export class ObligationsController {
   async update(
     @Req() req: { user?: { id?: string } },
     @Param('id') id: string,
-    @Body() body: {
+    @Body()
+    body: {
+      currency?: string;
       title?: string;
       amount?: number;
       dueDate?: string;
@@ -62,7 +71,10 @@ export class ObligationsController {
 
   @UseGuards(ClerkAuthGuard)
   @Delete(':id')
-  async delete(@Req() req: { user?: { id?: string } }, @Param('id') id: string) {
+  async delete(
+    @Req() req: { user?: { id?: string } },
+    @Param('id') id: string,
+  ) {
     if (!req.user?.id) {
       throw new UnauthorizedException();
     }

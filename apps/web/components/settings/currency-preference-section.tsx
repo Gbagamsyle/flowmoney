@@ -41,7 +41,7 @@ export function CurrencyPreferenceSection() {
     setError("");
     try {
       await updateCurrency(selection);
-      setMessage("Your preferred currency has been updated.");
+      setMessage("Your display currency has been updated.");
       setReviewing(false);
       setAcknowledged(false);
     } catch (cause) {
@@ -62,11 +62,10 @@ export function CurrencyPreferenceSection() {
     >
       <div className="space-y-2">
         <h2 id="currency-preference-title" className="text-lg font-semibold">
-          Primary currency
+          Display currency
         </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          Sets the default currency for FlowMoney amounts. Changing it does not
-          convert saved values or apply exchange rates.
+          Shows supported amounts in your chosen currency using exchange-rate estimates. Original currencies and saved values stay unchanged. New entries start with this currency; you can choose another when adding them.
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -121,9 +120,7 @@ export function CurrencyPreferenceSection() {
             Change {currency} to {selection}?
           </legend>
           <p className="text-sm leading-6 text-muted-foreground">
-            A value of 1,000 will remain 1,000 with the new default currency
-            label. This can change how totals are understood. Accounts and
-            statements with their own currency keep that currency.
+            Saved amounts keep their original currency. FlowMoney converts supported totals for display using the latest available daily rates. Statements and saved plans keep their original values, with estimates shown separately. Rates can differ from bank quotes.
           </p>
           <label className="flex items-start gap-3 text-sm leading-6">
             <input
@@ -132,7 +129,7 @@ export function CurrencyPreferenceSection() {
               onChange={(event) => setAcknowledged(event.target.checked)}
               className="mt-1 size-4 shrink-0 accent-foreground"
             />
-            I understand that saved amounts will not be converted.
+            I understand that conversions are estimates and original records stay unchanged.
           </label>
           <div className="flex flex-wrap gap-3">
             <Button

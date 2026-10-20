@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  currencyCode,
+  validateStoredAmount,
+} from '../currencies/currency.logic.js';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { UsersService } from '../users/users.service.js';
 
@@ -29,14 +33,38 @@ export class ExpectedIncomeService {
 
   async create(
     userId: string,
-    payload: { title: string; amount: number; expectedDate: string; confidence: string; status?: string },
+    payload: {
+      title: string;
+      amount: number;
+      expectedDate: string;
+      confidence: string;
+      status?: string;
+      currency?: string;
+    },
   ) {
     const user = await this.ensureUser(userId);
 
+    const source = currencyCode(
+      payload.currency ??
+        ('preferredCurrency' in user ? user.preferredCurrency : undefined),
+    );
+    validateStoredAmount(payload.amount, source);
+    if (
+      !payload.title?.trim() ||
+      Number.isNaN(new Date(payload.expectedDate).getTime()) ||
+      !['CONFIRMED', 'LIKELY', 'UNCERTAIN'].includes(payload.confidence) ||
+      !['EXPECTED', 'RECEIVED', 'PARTIAL', 'DELAYED', 'CANCELLED'].includes(
+        payload.status ?? 'EXPECTED',
+      )
+    )
+      throw new BadRequestException(
+        'Choose a title, valid date, confidence and status.',
+      );
     return this.prisma.expectedIncome.create({
       data: {
         userId: user.id,
         title: payload.title,
+        currency: source,
         amount: payload.amount ?? 0,
         expectedDate: new Date(payload.expectedDate),
         confidence: payload.confidence as any,

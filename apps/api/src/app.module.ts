@@ -1,3 +1,4 @@
+import { CurrenciesModule } from './currencies/currencies.module.js';
 import { PlanningModule } from './planning/planning.module.js';
 import { StatementsModule } from './statements/statements.module.js';
 import { Module } from '@nestjs/common';
@@ -11,7 +12,17 @@ import { UsersModule } from './users/users.module.js';
 import { ScenariosModule } from './scenarios/scenarios.module.js';
 
 @Module({
-  imports: [PlanningModule, StatementsModule, AccountsModule, ExpectedIncomeModule, ObligationsModule, DashboardModule, ScenariosModule, UsersModule],
+  imports: [
+    CurrenciesModule,
+    PlanningModule,
+    StatementsModule,
+    AccountsModule,
+    ExpectedIncomeModule,
+    ObligationsModule,
+    DashboardModule,
+    ScenariosModule,
+    UsersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

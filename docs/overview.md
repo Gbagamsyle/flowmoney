@@ -2,7 +2,7 @@
 
 The original Overview layout is retained: a prominent safe-to-spend card, three supporting balance cards, account notes, two forecast cards and side-by-side commitments/income lists. Card refinements use consistent padding, restrained icons, clear amount hierarchy and responsive wrapping. Supporting cards have equal height.
 
-The estimate excludes expected income and Planning allocations. Unpaid commitments are described as deductions from the estimate rather than money physically moved. Forecasts remain conditional. Mixed currencies have a prominent warning because the API aggregates without exchange-rate conversion. No API calculations change.
+The estimate excludes expected income and Planning allocations. Unpaid commitments are described as deductions from the estimate rather than money physically moved. Forecasts remain conditional. Mixed-currency records are now normalized to the selected display currency using one cached exchange-rate snapshot before Overview and Scenario calculations. Original values are preserved. Unconfirmed legacy currencies block combined totals; unavailable rates never fall back to relabeling. Conversions are reference estimates, with source and update time disclosed.
 
 Refreshes abort superseded requests and retain labelled last-loaded figures on failure. Auth/currency changes clear data. Lists are filtered and sorted without mutating source records. Loading, empty and retry states and consent-gated analytics remain supported.
 

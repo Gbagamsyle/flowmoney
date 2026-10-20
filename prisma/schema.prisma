@@ -58,6 +58,7 @@ model IncomeSource {
 }
 
 model ExpectedIncome {
+  currency String?
   id           String               @id @default(cuid())
   userId       String
   sourceId     String?
@@ -77,6 +78,7 @@ model ExpectedIncome {
 }
 
 model Obligation {
+  currency String?
   id        String             @id @default(cuid())
   userId    String
   title     String
@@ -251,4 +253,13 @@ model PlanningAction {
 
   @@unique([transactionId, kind])
   @@index([userId])
+}
+
+// Shared provider cache. Contains public rates only; no user or statement data.
+model ExchangeRateSnapshot {
+  base String @id
+  rates Json
+  asOf DateTime
+  nextUpdate DateTime
+  fetchedAt DateTime @default(now())
 }

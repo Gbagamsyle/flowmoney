@@ -28,7 +28,15 @@ export class ExpectedIncomeController {
   @Post()
   async create(
     @Req() req: { user?: { id?: string } },
-    @Body() body: { title: string; amount: number; expectedDate: string; confidence: string; status?: string },
+    @Body()
+    body: {
+      title: string;
+      amount: number;
+      expectedDate: string;
+      confidence: string;
+      status?: string;
+      currency?: string;
+    },
   ) {
     if (!req.user?.id) {
       throw new UnauthorizedException();

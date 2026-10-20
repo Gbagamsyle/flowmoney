@@ -17,8 +17,9 @@ Tell us whether each section’s purpose is clear. You can skip the tour at any 
    amount. Standalone plans do not use your accounts or statement history. Planning does not move money.
 4. Read Overview, then try a scenario. Explain what you think the safe-to-spend figure includes.
    Overview excludes category allocations in Planning; plans do not fund one another automatically.
-5. Open Settings. Try appearance preferences and locate Help & feedback. Currency preference changes
-   do not convert existing amounts with an exchange rate; review that confirmation carefully.
+5. Open Settings. Try appearance preferences and locate Help & feedback. Change the display currency
+   and compare the converted estimates with the original amounts. Confirm older records’ original
+   currencies when prompted; the saved numbers must remain unchanged.
 
 ## Send feedback
 

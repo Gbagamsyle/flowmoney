@@ -1,4 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  currencyCode,
+  validateStoredAmount,
+} from '../currencies/currency.logic.js';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { UsersService } from '../users/users.service.js';
 
@@ -33,12 +41,17 @@ export class AccountsService {
   ) {
     const user = await this.ensureUser(userId);
 
+    const source = currencyCode(
+      payload.currency ??
+        ('preferredCurrency' in user ? user.preferredCurrency : undefined),
+    );
+    validateStoredAmount(payload.balance, source, true);
     return this.prisma.financialAccount.create({
       data: {
         userId: user.id,
         name: payload.name,
         balance: payload.balance ?? 0,
-        currency: payload.currency ?? 'NGN',
+        currency: source,
       },
     });
   }
@@ -61,12 +74,24 @@ export class AccountsService {
       throw new NotFoundException('Account not found');
     }
 
+    if (
+      payload.currency !== undefined &&
+      currencyCode(payload.currency) !== account.currency
+    )
+      throw new BadRequestException(
+        'The original account currency cannot be changed by relabeling.',
+      );
+
+    if (payload.balance !== undefined)
+      validateStoredAmount(payload.balance, account.currency, true);
     return this.prisma.financialAccount.update({
       where: { id: accountId },
       data: {
         ...(payload.name !== undefined ? { name: payload.name } : {}),
         ...(payload.balance !== undefined ? { balance: payload.balance } : {}),
-        ...(payload.currency !== undefined ? { currency: payload.currency } : {}),
+        ...(payload.currency !== undefined
+          ? { currency: payload.currency }
+          : {}),
       },
     });
   }
