@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Plus,
   ShieldCheck,
+  Upload,
   X,
 } from "lucide-react";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
@@ -1119,8 +1120,12 @@ export default function PlanningPage() {
                           planning purpose
                         </p>
                       </div>
-                      <Link href="/statements" className="text-xs underline">
-                        Open Statements
+                      <Link
+                        href="/statements"
+                        className={`${button} min-h-10 bg-background text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
+                      >
+                        <Upload className="size-4" aria-hidden="true" />
+                        Import statement
                       </Link>
                     </div>
                     <p className="text-xs leading-relaxed text-muted-foreground">

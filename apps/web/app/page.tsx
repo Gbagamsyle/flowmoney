@@ -1,7 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Check, CircleDollarSign, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  ChartNoAxesCombined,
+  Check,
+  ShieldCheck,
+  WalletCards,
+} from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
 import { buttonVariants } from "@flowmoney/ui/components/button";
 import { BrandMark } from "@/components/brand-mark";
@@ -29,12 +36,12 @@ const steps = [
 
 const capabilities = [
   {
-    icon: CircleDollarSign,
+    icon: WalletCards,
     title: "Money visibility",
     text: "Track what you have, what is incoming, and what is already committed.",
   },
   {
-    icon: TrendingUp,
+    icon: ChartNoAxesCombined,
     title: "Income-aware planning",
     text: "Build plans around seasonal work, contract income, and uneven cash flow.",
   },
@@ -44,7 +51,7 @@ const capabilities = [
     text: "Protect essentials first and see your runway before making new commitments.",
   },
   {
-    icon: Sparkles,
+    icon: CalendarDays,
     title: "Clear financial rhythm",
     text: "Turn noisy monthly finance into a calm, repeatable spending plan.",
   },
@@ -268,8 +275,8 @@ export default async function Home() {
             <div className="grid gap-5 sm:grid-cols-2">
               {capabilities.map(({ icon: Icon, title, text }) => (
                 <div key={title} className="rounded-[24px] border border-border bg-muted/30 p-5">
-                  <div className="mb-4 flex size-10 items-center justify-center rounded-full border border-border bg-background text-foreground">
-                    <Icon className="size-4" />
+                  <div className="mb-4 inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-foreground">
+                    <Icon aria-hidden="true" className="size-5 shrink-0" strokeWidth={1.75} />
                   </div>
                   <h3 className="text-xl font-medium tracking-[-0.04em] text-foreground">
                     {title}
