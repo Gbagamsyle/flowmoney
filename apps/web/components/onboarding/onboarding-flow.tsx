@@ -1,10 +1,11 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import { ArrowLeft, ArrowRight, Check, CircleDollarSign, Plus, ShieldCheck, WalletCards } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Plus, ShieldCheck, WalletCards } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@flowmoney/ui/components/button";
+import { BrandMark } from "@/components/brand-mark";
 import flowIllustration from "@/assets/flow.png";
 import { formatMoney } from "@/lib/format-money";
 import { CURRENCIES, suggestCurrency, type CurrencyCode } from "@/lib/currencies";
@@ -243,12 +244,15 @@ export function OnboardingFlow() {
   }
 
   return (
-    <main className="min-h-svh bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_35%),linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)] px-4 py-5 sm:px-6 sm:py-9">
+    <main className="min-h-svh bg-background px-4 py-5 sm:px-6 sm:py-9">
       <div className="mx-auto w-full max-w-6xl">
         <header className="mb-8 flex items-center justify-between border-b border-border/70 pb-5">
           <a href="/" className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-foreground">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/20"><CircleDollarSign className="size-5" /></span>
-            FlowMoney
+            <BrandMark
+              className="gap-2.5"
+              iconClassName="size-9"
+              textClassName="text-lg font-semibold tracking-tight"
+            />
           </a>
         </header>
 
