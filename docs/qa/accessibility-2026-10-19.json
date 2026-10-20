@@ -1,0 +1,92 @@
+[
+  {
+    "page": "dashboard",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "dashboard",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "page": "accounts",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "accounts",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "page": "income",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "income",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "page": "obligations",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "obligations",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "page": "planning",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "planning",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "page": "statements",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "statements",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "page": "scenarios",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "scenarios",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "page": "calculator",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "calculator",
+    "theme": "dark",
+    "violations": []
+  },
+  {
+    "page": "settings",
+    "theme": "light",
+    "violations": []
+  },
+  {
+    "page": "settings",
+    "theme": "dark",
+    "violations": []
+  }
+]

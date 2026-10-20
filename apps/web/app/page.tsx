@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, Check, CircleDollarSign, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
 import { buttonVariants } from "@flowmoney/ui/components/button";
+import { BrandMark } from "@/components/brand-mark";
 
 const steps = [
   {
@@ -76,11 +77,8 @@ export default async function Home() {
     <main className="min-h-svh bg-background text-foreground">
       <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
         <header className="flex items-center justify-between py-5 lg:py-6">
-          <Link href="/" className="flex items-center gap-3 text-foreground">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-foreground text-sm font-medium text-background">
-              F
-            </span>
-            <span className="text-base font-medium tracking-tight">FlowMoney</span>
+          <Link href="/" className="flex items-center text-foreground">
+            <BrandMark className="gap-3" iconClassName="size-9" textClassName="text-base" />
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
@@ -478,12 +476,7 @@ export default async function Home() {
         </section>
 
         <footer className="flex flex-col gap-5 border-t border-border py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-foreground text-xs font-medium text-background">
-              F
-            </span>
-            <span>FlowMoney</span>
-          </div>
+          <BrandMark className="gap-3" iconClassName="size-7" textClassName="text-sm" />
 
           <div className="flex items-center gap-5">
             <Link href="#how-it-works" className="transition hover:text-foreground">

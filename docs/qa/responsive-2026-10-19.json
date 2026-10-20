@@ -1,0 +1,1546 @@
+{
+  "results": [
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "dashboard",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "accounts",
+      "state": "form",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "income",
+      "state": "form",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "obligations",
+      "state": "form",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "planning",
+      "state": "edit",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "statements",
+      "state": "review",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "scenarios",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "calculator",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "settings",
+      "state": "currency-confirmation",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "currency",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "funds",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "income",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "obligations",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "onboarding",
+      "state": "review",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 320,
+      "height": 740,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 360,
+      "height": 800,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 390,
+      "height": 844,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 768,
+      "height": 1024,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 820,
+      "height": 1180,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 1024,
+      "height": 768,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 1280,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 1440,
+      "height": 900,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 1920,
+      "height": 1080,
+      "pass": true
+    },
+    {
+      "page": "landing",
+      "state": "default",
+      "width": 844,
+      "height": 390,
+      "pass": true
+    }
+  ],
+  "failures": [],
+  "errors": []
+}

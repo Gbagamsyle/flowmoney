@@ -1,0 +1,30 @@
+{
+  "results": [
+    {
+      "format": "csv",
+      "parsed": true,
+      "reviewRequired": true,
+      "approved": true,
+      "duplicateIdReused": true,
+      "repeatApprovalRejected": true
+    },
+    {
+      "format": "pdf",
+      "parsed": true,
+      "reviewRequired": true,
+      "approved": true,
+      "duplicateIdReused": true,
+      "repeatApprovalRejected": true
+    },
+    {
+      "format": "xlsx",
+      "parsed": true,
+      "reviewRequired": true,
+      "approved": true,
+      "duplicateIdReused": true,
+      "repeatApprovalRejected": true
+    }
+  ],
+  "unsupportedPdfRejected": true,
+  "accountsUnchanged": true
+}

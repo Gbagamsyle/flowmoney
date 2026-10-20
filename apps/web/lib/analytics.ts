@@ -11,13 +11,18 @@ export type ProductEvent =
 let posthogInit: Promise<void> | undefined;
 
 export function hasAnalyticsConsent() {
-  return typeof window !== "undefined"
-    && window.localStorage.getItem(ANALYTICS_CONSENT_KEY) === "granted";
+  return (
+    typeof window !== "undefined" &&
+    window.localStorage.getItem(ANALYTICS_CONSENT_KEY) === "granted"
+  );
 }
 
 export async function setAnalyticsConsent(consent: boolean) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(ANALYTICS_CONSENT_KEY, consent ? "granted" : "denied");
+  window.localStorage.setItem(
+    ANALYTICS_CONSENT_KEY,
+    consent ? "granted" : "denied",
+  );
 
   if (!consent) {
     const { default: posthog } = await import("posthog-js");
@@ -32,28 +37,41 @@ export async function trackProductEvent(event: ProductEvent) {
   if (!hasAnalyticsConsent() || !process.env.NEXT_PUBLIC_POSTHOG_KEY) return;
   await initializePostHog();
   const { default: posthog } = await import("posthog-js");
-  posthog.capture(event);
+  // Consent may have changed while the SDK was loading.
+  if (hasAnalyticsConsent()) posthog.capture(event);
 }
 
-export async function trackProductEventOnce(event: ProductEvent, subjectId = "anonymous") {
+export async function trackProductEventOnce(
+  event: ProductEvent,
+  subjectId = "anonymous",
+) {
   return trackProductEventOnceForSubject(event, subjectId);
 }
 
-export async function trackProductEventOnceForSubject(event: ProductEvent, subjectId = "anonymous") {
+export async function trackProductEventOnceForSubject(
+  event: ProductEvent,
+  subjectId = "anonymous",
+) {
   if (!hasAnalyticsConsent() || typeof window === "undefined") return;
   const safeSubjectId = subjectId.replace(/[^a-zA-Z0-9_-]/g, "_");
   const key = `flowmoney:analytics-event:${safeSubjectId}:${event}`;
   if (window.localStorage.getItem(key) === "sent") return;
   try {
     await trackProductEvent(event);
-    if (process.env.NEXT_PUBLIC_POSTHOG_KEY) window.localStorage.setItem(key, "sent");
+    if (process.env.NEXT_PUBLIC_POSTHOG_KEY && hasAnalyticsConsent())
+      window.localStorage.setItem(key, "sent");
   } catch {
     // Analytics failures must never interrupt a financial-data action.
   }
 }
 
 export async function trackDashboardReturn(subjectId = "anonymous") {
-  if (!hasAnalyticsConsent() || typeof window === "undefined" || !process.env.NEXT_PUBLIC_POSTHOG_KEY) return;
+  if (
+    !hasAnalyticsConsent() ||
+    typeof window === "undefined" ||
+    !process.env.NEXT_PUBLIC_POSTHOG_KEY
+  )
+    return;
   const safeSubjectId = subjectId.replace(/[^a-zA-Z0-9_-]/g, "_");
   const key = `flowmoney:dashboard-visited:${safeSubjectId}`;
   if (window.localStorage.getItem(key)) {
@@ -77,7 +95,9 @@ export function clearLocalAccountState(subjectId?: string) {
     const key = window.localStorage.key(index);
     if (key?.startsWith(eventPrefix)) window.localStorage.removeItem(key);
   }
-  window.localStorage.removeItem(`flowmoney:dashboard-visited:${safeSubjectId}`);
+  window.localStorage.removeItem(
+    `flowmoney:dashboard-visited:${safeSubjectId}`,
+  );
 }
 
 async function initializePostHog() {
@@ -88,7 +108,8 @@ async function initializePostHog() {
     const { default: posthog } = await import("posthog-js");
     if (!posthog.__loaded) {
       posthog.init(apiKey, {
-        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+        api_host:
+          process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
         autocapture: false,
         capture_pageview: false,
         capture_pageleave: false,
@@ -98,8 +119,15 @@ async function initializePostHog() {
         person_profiles: "identified_only",
       });
     }
-    posthog.opt_in_capturing();
-  })();
+  })().catch((error) => {
+    posthogInit = undefined;
+    throw error;
+  });
 
   await posthogInit;
+  const { default: posthog } = await import("posthog-js");
+  // Apply the latest preference on every call, including re-enabling analytics.
+  if (hasAnalyticsConsent()) {
+    if (posthog.has_opted_out_capturing()) posthog.opt_in_capturing();
+  } else posthog.opt_out_capturing();
 }

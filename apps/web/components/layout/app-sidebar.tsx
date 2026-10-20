@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@flowmoney/ui/lib/utils";
+import { BrandMark } from "@/components/brand-mark";
 
 const navigationGroups = [
   {
@@ -72,11 +73,12 @@ export function AppSidebar() {
     <>
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r bg-card lg:flex lg:flex-col">
         <div className="flex h-16 items-center border-b px-6">
-          <Link
-            href="/dashboard"
-            className="text-xl font-semibold tracking-tight"
-          >
-            FlowMoney
+          <Link href="/dashboard" className="flex items-center">
+            <BrandMark
+              className="gap-2"
+              iconClassName="size-8"
+              textClassName="text-lg font-semibold tracking-tight"
+            />
           </Link>
         </div>
 

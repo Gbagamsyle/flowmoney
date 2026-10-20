@@ -4,6 +4,8 @@ import { DeleteAccountSection } from "@/components/settings/delete-account-secti
 import { AnalyticsConsentSection } from "@/components/settings/analytics-consent-section";
 import { CurrencyPreferenceSection } from "@/components/settings/currency-preference-section";
 
+import { SupportSettingsSection } from "@/components/settings/support-settings-section";
+
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
@@ -18,6 +20,7 @@ export default function SettingsPage() {
       <AppearanceSettingsSection />
       <CurrencyPreferenceSection />
       <AnalyticsConsentSection />
+      <SupportSettingsSection />
       <DeleteAccountSection />
     </div>
   );
