@@ -306,7 +306,7 @@ export default function StatementsPage() {
               disabled={busy}
               type="file"
               accept=".pdf,.csv,.xlsx"
-              className="mt-2 block w-full max-w-sm text-sm"
+              className="mt-2 block w-full max-w-sm cursor-pointer rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 file:mr-3 file:cursor-pointer file:rounded-lg file:border file:border-input file:bg-background file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted disabled:file:cursor-not-allowed"
               onChange={(e) => {
                 const next = e.target.files?.[0] ?? null;
                 if (next && next.size > 5 * 1024 * 1024) {

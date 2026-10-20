@@ -5,6 +5,9 @@ It does not hold your money, move money or ask for your bank login.
 
 ## Try these tasks
 
+Start with the welcome walkthrough, or replay it from Settings → Help & feedback.
+Tell us whether each section’s purpose is clear. You can skip the tour at any time.
+
 1. Add your current account balances in Current Funds, then add expected income and an unpaid commitment.
    Keep balances up to date yourself; expected income is not available cash until it arrives.
 2. Upload a digital PDF, CSV or XLSX statement. Image-only/scanned PDFs are unsupported. Confirm the

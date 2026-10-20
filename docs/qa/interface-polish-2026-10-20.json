@@ -1,0 +1,285 @@
+{
+  "date": "2026-10-20",
+  "scope": "Component browser checks; authentication and API are stubbed in this harness.",
+  "layout": {
+    "checks": 30,
+    "failures": [],
+    "runtimeErrors": [],
+    "results": [
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 320,
+        "height": 740,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 360,
+        "height": 800,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 390,
+        "height": 844,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 768,
+        "height": 1024,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 820,
+        "height": 1180,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 1024,
+        "height": 768,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 1280,
+        "height": 900,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 1440,
+        "height": 900,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 1920,
+        "height": 1080,
+        "pass": true
+      },
+      {
+        "page": "landing",
+        "state": "default",
+        "width": 844,
+        "height": 390,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 320,
+        "height": 740,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 360,
+        "height": 800,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 390,
+        "height": 844,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 768,
+        "height": 1024,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 820,
+        "height": 1180,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 1024,
+        "height": 768,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 1280,
+        "height": 900,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 1440,
+        "height": 900,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 1920,
+        "height": 1080,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "default",
+        "width": 844,
+        "height": 390,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 320,
+        "height": 740,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 360,
+        "height": 800,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 390,
+        "height": 844,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 768,
+        "height": 1024,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 820,
+        "height": 1180,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 1024,
+        "height": 768,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 1280,
+        "height": 900,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 1440,
+        "height": 900,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 1920,
+        "height": 1080,
+        "pass": true
+      },
+      {
+        "page": "settings",
+        "state": "currency-confirmation",
+        "width": 844,
+        "height": 390,
+        "pass": true
+      }
+    ]
+  },
+  "accessibility": [
+    {
+      "page": "landing",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "landing",
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "settings",
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "settings",
+      "theme": "dark",
+      "violations": []
+    }
+  ],
+  "walkthrough": {
+    "viewports": [
+      [
+        320,
+        740
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        844,
+        390
+      ],
+      [
+        1440,
+        900
+      ]
+    ],
+    "stepsPerViewport": 9,
+    "accessibilityChecks": 32,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "passed": [
+      "welcome",
+      "all step bounds",
+      "desktop panel movement",
+      "back",
+      "Escape",
+      "skip",
+      "completion",
+      "completion persistence",
+      "Settings replay",
+      "reduced motion"
+    ]
+  },
+  "limitations": [
+    "Component checks do not certify real-device behavior.",
+    "Separate authenticated journey results are recorded independently."
+  ]
+}

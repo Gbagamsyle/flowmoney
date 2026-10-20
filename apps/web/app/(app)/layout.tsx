@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { ProductTour } from "@/components/layout/product-tour";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { OnboardingRouteGate } from "@/components/layout/onboarding-route-gate";
@@ -22,6 +23,7 @@ export default async function AppLayout({
       <OnboardingRouteGate>
       <div className="min-h-svh bg-background">
         <AppSidebar />
+        <ProductTour />
 
         <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-64">
           <AppHeader />

@@ -187,6 +187,14 @@ test("onboarding, statements, both planning modes, responsive pages, settings, d
   ).toBeVisible();
   await page.getByRole("button", { name: /go to my dashboard/i }).click();
 
+  const tour = page.getByRole("dialog");
+  await expect(tour).toBeVisible();
+  await tour.getByRole("button", { name: "Show me around", exact: true }).click();
+  await tour.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Begin with what you have." })).toBeVisible();
+  await page.getByRole("button", { name: "Skip tour", exact: true }).click();
+  await expect(tour).not.toBeVisible();
+
   await expect(
     page.getByText("Your money, in perspective", { exact: true }),
   ).toBeVisible();
@@ -208,6 +216,9 @@ test("onboarding, statements, both planning modes, responsive pages, settings, d
       .getByRole("navigation", { name: "Mobile navigation" })
       .getByRole("link", { name: "Settings" }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Take the product tour" }).click();
+  await expect(page.getByRole("dialog", { name: /A clearer view/ })).toBeVisible();
+  await page.keyboard.press("Escape");
   await page.getByLabel("Currency", { exact: true }).selectOption("GBP");
   await page
     .getByRole("button", { name: "Review change", exact: true })
