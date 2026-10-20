@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
 import { formatMoney } from "@/lib/format-money";
+import { ConversionSummary } from "@/components/settings/conversion-summary";
 import { categoryName } from "@/lib/statement-labels";
 import { moveAllocation, planningMinor } from "@/lib/planning-inputs";
 
@@ -107,6 +108,7 @@ type Plan = {
   unmappedCount: number;
   overlapWarning: boolean;
   currencyMismatch: boolean;
+  unverifiedCount?: number;
   excludedCurrencies: string[];
   accountCount: number;
   actions: { transactionId: string; kind: string }[];
@@ -401,6 +403,8 @@ export default function PlanningPage() {
             </section>
           ) : (
             <>
+              <ConversionSummary kind="plan" id={plan.id} source={plan.currency} revision={plan.revision} />
+              {!!plan.unverifiedCount && <p className="text-sm text-muted-foreground">Some older income and obligations need currency confirmation in Settings before they can join this plan.</p>}
               <section className="space-y-4 rounded-xl border bg-card p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-sm font-medium">
@@ -512,15 +516,14 @@ export default function PlanningPage() {
                 <section className="space-y-2 rounded-xl border bg-card p-4 text-sm">
                   {plan.currencyMismatch && (
                     <p>
-                      Your preferred currency has changed. This plan keeps{" "}
-                      {plan.currency}; obligations and expected income are
-                      hidden because their currency is no longer certain.
+                      This plan keeps{" "}
+                      {plan.currency}; only records with that original currency are included.
                     </p>
                   )}
                   {!!plan.excludedCurrencies.length && (
                     <p>
                       Accounts in {plan.excludedCurrencies.join(", ")} are
-                      excluded. No currency conversion is performed.
+                      excluded from this plan. The converted summary is an estimate only.
                     </p>
                   )}
                   {plan.overlapWarning && (

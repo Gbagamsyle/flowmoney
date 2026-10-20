@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { CurrencyStatus } from "@/components/settings/currency-status";
 import { ProductTour } from "@/components/layout/product-tour";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
@@ -29,6 +30,7 @@ export default async function AppLayout({
           <AppHeader />
 
           <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+            <CurrencyStatus />
             {children}
           </main>
         </div>

@@ -3,6 +3,8 @@
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
+import { CURRENCIES } from "@/lib/currencies";
+import { MoneyAmount } from "@/components/settings/currency-status";
 import { formatMoney } from "@/lib/format-money";
 import { trackProductEventOnce } from "@/lib/analytics";
 
@@ -20,14 +22,15 @@ type CurrentFund = {
 type FormState = {
   name: string;
   balance: string;
+  currency: string;
 };
 
 export default function AccountsPage() {
   const { getToken, isLoaded, isSignedIn, userId } = useAuth();
-  const { currency } = usePreferredCurrency();
+  const { currency, display, currencyLoading, currencyError } = usePreferredCurrency();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<FormState>({ name: "", balance: "" });
+  const [form, setForm] = useState<FormState>({ name: "", balance: "", currency });
   const [funds, setFunds] = useState<CurrentFund[]>([]);
   const [fundsLoaded, setFundsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -36,8 +39,13 @@ export default function AccountsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const totalFunds = useMemo(
-    () => funds.reduce((sum, fund) => sum + Number(fund.balance ?? 0), 0),
-    [funds],
+    () => {
+      if (funds.every((f) => f.currency === currency)) return funds.reduce((sum, f) => sum + Number(f.balance), 0);
+      if (display?.currency !== currency) return null;
+      const estimates = funds.map((f) => display.amounts.find((a) => a.kind === "ACCOUNT" && a.id === f.id && a.currency === f.currency && Number(a.amount) === Number(f.balance)));
+      return estimates.every(Boolean) ? estimates.reduce((sum, a) => sum + a!.converted, 0) : null;
+    },
+    [funds, currency, display],
   );
 
   const loadFunds = async () => {
@@ -94,7 +102,7 @@ export default function AccountsPage() {
   }, [getToken, isLoaded, isSignedIn]);
 
   const resetForm = () => {
-    setForm({ name: "", balance: "" });
+    setForm({ name: "", balance: "", currency });
     setEditingId(null);
     setShowForm(false);
   };
@@ -128,11 +136,11 @@ export default function AccountsPage() {
         body: JSON.stringify({
           name: form.name.trim(),
           balance: parsedBalance,
-          ...(!editingId ? { currency } : {}),
+          ...(!editingId ? { currency: form.currency } : {}),
         }),
       });
 
-      if (!response.ok) throw new Error(`The fund could not be saved (HTTP ${response.status}).`);
+      if (!response.ok) { const failure = await response.json().catch(() => ({})); throw new Error(failure.message ?? "The fund could not be saved."); }
 
       if (!editingId && fundsLoaded && funds.length === 0) void trackProductEventOnce("first_fund_created", userId ?? undefined);
       resetForm();
@@ -149,6 +157,7 @@ export default function AccountsPage() {
     setForm({
       name: fund.name,
       balance: String(fund.balance),
+      currency: fund.currency,
     });
     setShowForm(true);
   };
@@ -196,12 +205,14 @@ export default function AccountsPage() {
 
         <button
           type="button"
+          disabled={currencyLoading || !!currencyError}
           onClick={() => {
             if (showForm) {
               resetForm();
               return;
             }
 
+            setForm({ name: "", balance: "", currency });
             setShowForm(true);
           }}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
@@ -238,18 +249,18 @@ export default function AccountsPage() {
             </label>
 
             <label className="space-y-2 text-sm font-medium">
-              <span>Primary currency</span>
-              <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">{currency}</div>
+              <span>Original currency</span>
+              <select aria-label="Original currency" disabled={!!editingId} value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="w-full rounded-md border bg-background px-3 py-2 text-sm">{CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code}</option>)}</select>
             </label>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-sm font-medium">
-              <span>Amount ({currency})</span>
+              <span>Amount ({form.currency})</span>
               <input
                 type="number"
                 min="0"
-                step="1000"
+                step="0.01"
                 value={form.balance}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, balance: event.target.value }))
@@ -291,14 +302,14 @@ export default function AccountsPage() {
             Add your first amount to start building a realistic picture of your
             available cash.
           </p>
-          <button type="button" onClick={() => setShowForm(true)} className="mt-5 min-h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">Add your first funds</button>
+          <button type="button" disabled={currencyLoading || !!currencyError} onClick={() => { setForm({ name: "", balance: "", currency }); setShowForm(true); }} className="mt-5 min-h-11 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">Add your first funds</button>
         </div>
       ) : (
         <div className="space-y-4">
           <div className="rounded-xl border bg-card p-4">
             <p className="text-sm text-muted-foreground">Total current funds</p>
             <p className="mt-2 text-3xl font-semibold tracking-tight">
-              {formatMoney(totalFunds, currency)}
+              {totalFunds === null ? "Conversion unavailable" : formatMoney(totalFunds, currency, undefined, 2)}
             </p>
           </div>
 
@@ -308,7 +319,7 @@ export default function AccountsPage() {
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0 flex-1 basis-40"><p className="break-words text-sm text-muted-foreground">{fund.name}</p>
                     <p className="mt-2 break-all text-2xl font-semibold tracking-tight tabular-nums">
-                      {formatMoney(Number(fund.balance ?? 0), currency)}
+                      <MoneyAmount kind="ACCOUNT" id={fund.id} value={fund.balance} source={fund.currency} />
                     </p>
                   </div>
 

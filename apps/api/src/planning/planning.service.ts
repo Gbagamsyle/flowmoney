@@ -1,4 +1,8 @@
 import {
+  convertAmount,
+  validatePlanMinor,
+} from '../currencies/currency.logic.js';
+import {
   BadRequestException,
   ConflictException,
   Injectable,
@@ -66,7 +70,6 @@ export class PlanningService {
           },
         });
         const currency = plan?.currency ?? user.preferredCurrency;
-        const sameCurrency = currency === user.preferredCurrency;
         const { start, end } = monthRange(month);
         const [accounts, obligations, income, rows, actions] =
           await Promise.all([
@@ -147,25 +150,25 @@ export class PlanningService {
             importId: r.importId,
           })),
           links: plan?.links ?? [],
-          obligations: sameCurrency
-            ? obligations.map((o) => ({
-                id: o.id,
-                title: o.title,
-                amountMinor: cents(o.amount),
-                date: day(o.dueDate),
-                status: o.status,
-              }))
-            : [],
-          income: sameCurrency
-            ? income.map((i) => ({
-                id: i.id,
-                title: i.title,
-                amountMinor: cents(i.amount),
-                date: day(i.expectedDate),
-                status: i.status,
-                confidence: i.confidence,
-              }))
-            : [],
+          obligations: obligations
+            .filter((o) => o.currency === currency)
+            .map((o) => ({
+              id: o.id,
+              title: o.title,
+              amountMinor: cents(o.amount),
+              date: day(o.dueDate),
+              status: o.status,
+            })),
+          income: income
+            .filter((i) => i.currency === currency)
+            .map((i) => ({
+              id: i.id,
+              title: i.title,
+              amountMinor: cents(i.amount),
+              date: day(i.expectedDate),
+              status: i.status,
+              confidence: i.confidence,
+            })),
         });
         const ranges = new Map<string, { start: string; end: string }>();
         for (const row of rows) {
@@ -196,7 +199,10 @@ export class PlanningService {
           today: day(new Date()),
           ...context,
           actions,
-          currencyMismatch: !standalone && !sameCurrency,
+          currencyMismatch: false,
+          unverifiedCount:
+            obligations.filter((o) => !o.currency).length +
+            income.filter((i) => !i.currency).length,
           excludedCurrencies: [
             ...new Set(
               accounts
@@ -224,6 +230,7 @@ export class PlanningService {
     const startingFundsMinor = standalone
       ? validate.minor(body.startingFundsMinor)
       : 0;
+    validatePlanMinor(startingFundsMinor, user.preferredCurrency);
     if (!standalone && body.startingFundsMinor !== undefined)
       throw new BadRequestException(
         'Existing-funds plans use your recorded accounts.',
@@ -233,12 +240,17 @@ export class PlanningService {
       : await this.prisma.financialAccount.findMany({
           where: { userId: user.id, currency: user.preferredCurrency },
         });
-    const bufferMinor = Math.max(
-      0,
-      Math.floor(
-        (standalone
-          ? startingFundsMinor
-          : accounts.reduce((sum, a) => sum + cents(a.balance), 0)) / 10,
+    const fundsMinor = standalone
+      ? startingFundsMinor
+      : accounts.reduce((sum, a) => sum + cents(a.balance), 0);
+    const bufferMinor = cents(
+      new Prisma.Decimal(
+        convertAmount(
+          new Prisma.Decimal(fundsMinor).div(1000).toString(),
+          user.preferredCurrency,
+          user.preferredCurrency,
+          {},
+        ),
       ),
     );
     try {
@@ -337,6 +349,16 @@ export class PlanningService {
         body.startingFundsMinor === undefined
           ? undefined
           : validate.minor(body.startingFundsMinor);
+      for (const value of [
+        buffer,
+        ...(startingFundsMinor !== undefined ? [startingFundsMinor] : []),
+        ...categories.flatMap((c) => [
+          c.allocatedMinor,
+          c.targetMinor,
+          c.savedMinor,
+        ]),
+      ])
+        validatePlanMinor(value, plan.currency);
       const existing = await tx.planCategory.findMany({
         where: { planId: id },
         select: { id: true },
@@ -428,15 +450,12 @@ export class PlanningService {
         body.kind === 'OBLIGATION' &&
         typeof body.destination === 'string'
       ) {
-        const user = await tx.user.findUniqueOrThrow({
-          where: { id: plan.userId },
-        });
-        if (user.preferredCurrency !== plan.currency)
-          throw new BadRequestException(
-            'Commitment currency does not match this plan.',
-          );
         const obligation = await tx.obligation.findFirst({
-          where: { id: body.destination, userId: plan.userId },
+          where: {
+            id: body.destination,
+            userId: plan.userId,
+            currency: plan.currency,
+          },
         });
         if (!obligation) throw new NotFoundException('Commitment not found.');
         obligationId = obligation.id;
@@ -474,6 +493,7 @@ export class PlanningService {
       throw new BadRequestException('Choose an obligation or expected income.');
     return this.mutate(clerkId, id, body.revision, async (tx, plan) => {
       const row = await this.transaction(tx, plan, body.transactionId);
+      validatePlanMinor(amount, plan.currency);
       if (
         (body.kind === 'INCOME' && row.direction !== 'IN') ||
         (body.kind === 'OBLIGATION' && row.direction !== 'OUT')
@@ -481,18 +501,12 @@ export class PlanningService {
         throw new BadRequestException(
           'Choose a transaction with the correct direction.',
         );
-      const user = await tx.user.findUniqueOrThrow({
-        where: { id: plan.userId },
-      });
-      if (plan.currency !== user.preferredCurrency)
-        throw new BadRequestException(
-          'Change your preference or choose a plan in the same currency before creating this record.',
-        );
       const record =
         body.kind === 'OBLIGATION'
           ? await tx.obligation.create({
               data: {
                 userId: plan.userId,
+                currency: plan.currency,
                 title,
                 amount: new Prisma.Decimal(amount).div(100),
                 dueDate: new Date(date + 'T00:00:00Z'),
@@ -503,6 +517,7 @@ export class PlanningService {
           : await tx.expectedIncome.create({
               data: {
                 userId: plan.userId,
+                currency: plan.currency,
                 title,
                 amount: new Prisma.Decimal(amount).div(100),
                 expectedDate: new Date(date + 'T00:00:00Z'),

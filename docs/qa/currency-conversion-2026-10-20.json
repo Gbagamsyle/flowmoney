@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-20",
+  "api": {
+    "files": 27,
+    "testsPassed": 205
+  },
+  "webLogicTestsPassed": 18,
+  "typecheck": "passed",
+  "builds": {
+    "web": "passed",
+    "api": "passed"
+  },
+  "provider": {
+    "name": "ExchangeRate-API",
+    "supportedCurrencies": 30,
+    "livePayloadValidation": "passed",
+    "asOf": "2026-10-20T00:02:32.000Z"
+  },
+  "isolatedLegacyMigration": "passed",
+  "originalAmountsPreserved": true,
+  "componentLayoutAndAccessibilityChecks": 32,
+  "componentChecksUseStubAuthentication": true,
+  "authenticatedJourney": {
+    "testsPassed": 2,
+    "duration": "5.0 minutes",
+    "responsiveCaptures": 54,
+    "desktopMainAccessibilityChecks": 18,
+    "usesRealClerkAndAPI": true,
+    "usesIsolatedDatabase": true,
+    "rateSnapshot": "synthetic deterministic public rates",
+    "coverage": [
+      "onboarding",
+      "statement import and approval",
+      "linked and standalone planning",
+      "nine responsive pages in both themes",
+      "currency change and conversion",
+      "original-unit account editing",
+      "plan and statement converted summaries",
+      "switch back without original mutation",
+      "account deletion and fresh onboarding"
+    ]
+  },
+  "temporaryResources": "removed",
+  "configuredLocalMigration": "applied",
+  "deploymentMigration": "required",
+  "newEnvironmentVariables": [],
+  "hostedCI": "previously blocked by GitHub account billing lock; check PR status"
+}

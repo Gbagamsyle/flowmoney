@@ -134,7 +134,6 @@ export function OnboardingFlow() {
       window.localStorage.removeItem("flowmoney:onboarding-step-v2");
       window.dispatchEvent(new CustomEvent("flowmoney:financial-data-changed"));
       router.replace("/dashboard");
-      router.refresh();
     } catch (cause) {
       setError(cause instanceof TypeError ? API_UNAVAILABLE_MESSAGE : cause instanceof Error ? cause.message : "Could not complete setup.");
     } finally {
@@ -179,7 +178,7 @@ export function OnboardingFlow() {
     try {
       await request("/expected-income", {
         method: "POST",
-        body: JSON.stringify({ ...income, title: income.title.trim(), amount: Number(income.amount) }),
+        body: JSON.stringify({ ...income, currency, title: income.title.trim(), amount: Number(income.amount) }),
       });
       void trackProductEventOnce("first_expected_income_created", userId ?? undefined);
       window.dispatchEvent(new CustomEvent("flowmoney:financial-data-changed"));
@@ -204,7 +203,7 @@ export function OnboardingFlow() {
       for (const item of validObligations) {
         await request("/obligations", {
           method: "POST",
-          body: JSON.stringify({ ...item, title: item.title.trim(), amount: Number(item.amount) }),
+          body: JSON.stringify({ ...item, currency, title: item.title.trim(), amount: Number(item.amount) }),
         });
       }
       void trackProductEventOnce("first_obligation_created", userId ?? undefined);
@@ -327,8 +326,8 @@ export function OnboardingFlow() {
                   {CURRENCIES.map((item) => <option key={item.code} value={item.code}>{item.name} ({item.code})</option>)}
                 </select>
               </label>
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm leading-6 text-muted-foreground">
-                FlowMoney won’t convert amounts. Choosing a currency sets how amounts are labeled and interpreted; it does not change their numeric values.
+              <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm leading-6 text-muted-foreground">
+                New records will be saved in this currency. Later, you can choose a display currency in Settings to see exchange-rate estimates without changing the original amounts.
               </div>
               <div className="flex justify-end">
                 <Button type="button" onClick={async () => {

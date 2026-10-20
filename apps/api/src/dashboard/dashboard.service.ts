@@ -1,17 +1,24 @@
+import { Prisma } from '@prisma/client';
+import { sumMoney } from '../currencies/currency.logic.js';
+import { ExchangeRatesService } from '../currencies/exchange-rates.service.js';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service.js';
 import { UsersService } from '../users/users.service.js';
-import { calculateSafeToSpend, calculateShortfallRisk } from '@flowmoney/calculations';
+import {
+  calculateSafeToSpend,
+  calculateShortfallRisk,
+} from '@flowmoney/calculations';
 
 @Injectable()
 export class DashboardService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
+    private readonly fx: ExchangeRatesService,
   ) {}
 
   async getDashboard(userId: string) {
-    const user = await this.usersService.findByClerkId(userId);
+    const user = await this.usersService.findByClerkId(userId, true);
     if (!user) {
       return {
         userId,
@@ -32,7 +39,7 @@ export class DashboardService {
       };
     }
 
-    const [accounts, expectedIncome, obligations] = await Promise.all([
+    const [rawAccounts, rawIncome, rawObligations] = await Promise.all([
       this.prisma.financialAccount.findMany({
         where: { userId: user.id },
         orderBy: { createdAt: 'asc' },
@@ -47,9 +54,39 @@ export class DashboardService {
       }),
     ]);
 
-    const currentFunds = accounts.reduce<number>(
-      (sum, account) => sum + Number(account.balance),
-      0,
+    const quote = await this.fx.quote(
+      [
+        ...rawAccounts.map((a) => a.currency),
+        ...rawIncome.map((a) => a.currency),
+        ...rawObligations.map((a) => a.currency),
+      ],
+      user.preferredCurrency,
+    );
+    const accounts = rawAccounts.map((a) => ({
+      ...a,
+      originalBalance: a.balance,
+      originalCurrency: a.currency,
+      balance: quote.convert(a.balance.toString(), a.currency),
+      currency: quote.target,
+    }));
+    const expectedIncome = rawIncome.map((a) => ({
+      ...a,
+      originalAmount: a.amount,
+      originalCurrency: a.currency,
+      amount: quote.convert(a.amount.toString(), a.currency),
+      currency: quote.target,
+    }));
+    const obligations = rawObligations.map((a) => ({
+      ...a,
+      originalAmount: a.amount,
+      originalCurrency: a.currency,
+      amount: quote.convert(a.amount.toString(), a.currency),
+      currency: quote.target,
+    }));
+
+    const currentFunds = sumMoney(
+      accounts.map((a) => a.balance),
+      quote.target,
     );
 
     const today = new Date();
@@ -60,15 +97,21 @@ export class DashboardService {
     const expectedIncomeByConfidence = activeExpectedIncome.reduce(
       (totals, item) => {
         if (item.confidence in totals) {
-          totals[item.confidence as keyof typeof totals] += Number(item.amount);
+          totals[item.confidence as keyof typeof totals] = sumMoney(
+            [
+              totals[item.confidence as keyof typeof totals],
+              Number(item.amount),
+            ],
+            quote.target,
+          );
         }
         return totals;
       },
       { CONFIRMED: 0, LIKELY: 0, UNCERTAIN: 0 },
     );
-    const pendingIncome = Object.values(expectedIncomeByConfidence).reduce(
-      (sum, amount) => sum + amount,
-      0,
+    const pendingIncome = sumMoney(
+      Object.values(expectedIncomeByConfidence),
+      quote.target,
     );
     const overdueOrDelayedIncome = activeExpectedIncome
       .filter((item) => {
@@ -84,31 +127,47 @@ export class DashboardService {
           title: item.title,
           amount: Number(item.amount),
           status: item.status,
-          daysLate: Math.max(0, Math.floor((today.getTime() - dueDate.getTime()) / 86_400_000)),
+          daysLate: Math.max(
+            0,
+            Math.floor((today.getTime() - dueDate.getTime()) / 86_400_000),
+          ),
         };
       });
-    const delayedIncomeIds = new Set(overdueOrDelayedIncome.map((item) => item.id));
-    const projectedIncome = activeExpectedIncome
-      .filter((item) => !delayedIncomeIds.has(item.id))
-      .reduce((sum, item) => sum + Number(item.amount), 0);
+    const delayedIncomeIds = new Set(
+      overdueOrDelayedIncome.map((item) => item.id),
+    );
+    const projectedIncome = sumMoney(
+      activeExpectedIncome
+        .filter((item) => !delayedIncomeIds.has(item.id))
+        .map((item) => Number(item.amount)),
+      quote.target,
+    );
 
-    const protectedObligations = obligations
-      .filter(
-        (obligation) =>
-          obligation.status !== 'PAID' && obligation.status !== 'SKIPPED',
-      )
-      .reduce<number>(
-        (sum, obligation) => sum + Number(obligation.amount),
-        0,
-      );
+    const protectedObligations = sumMoney(
+      obligations
+        .filter((o) => o.status !== 'PAID' && o.status !== 'SKIPPED')
+        .map((o) => Number(o.amount)),
+      quote.target,
+    );
 
-    const minimumBuffer = currentFunds * 0.1;
-    const safeToSpend = calculateSafeToSpend({
-      currentFunds,
-      protectedObligations,
-      minimumBuffer,
-    });
-    const projectedPosition = currentFunds - protectedObligations - minimumBuffer + projectedIncome;
+    const minimumBuffer = quote.convert(
+      new Prisma.Decimal(currentFunds).div(10).toString(),
+      quote.target,
+    );
+    const safeToSpend = quote.convert(
+      String(
+        calculateSafeToSpend({
+          currentFunds,
+          protectedObligations,
+          minimumBuffer,
+        }),
+      ),
+      quote.target,
+    );
+    const projectedPosition = sumMoney(
+      [currentFunds, -protectedObligations, -minimumBuffer, projectedIncome],
+      quote.target,
+    );
     const warnings: Array<{
       code: string;
       message: string;
@@ -118,7 +177,13 @@ export class DashboardService {
       title?: string;
       daysLate?: number;
     }> = [];
-    const shortfall = Math.max(0, protectedObligations + minimumBuffer - currentFunds);
+    const shortfall = Math.max(
+      0,
+      sumMoney(
+        [protectedObligations, minimumBuffer, -currentFunds],
+        quote.target,
+      ),
+    );
     const shortfallSeverity = calculateShortfallRisk(
       shortfall,
       protectedObligations,
@@ -128,7 +193,8 @@ export class DashboardService {
     if (shortfall > 0) {
       warnings.push({
         code: 'protected_obligations_shortfall',
-        message: 'Current funds may not fully cover upcoming commitments and the safety buffer.',
+        message:
+          'Current funds may not fully cover upcoming commitments and the safety buffer.',
         severity: shortfallSeverity,
         amount: shortfall,
       });
@@ -136,14 +202,37 @@ export class DashboardService {
 
     const availableForObligations = Math.max(0, currentFunds - minimumBuffer);
     const activeObligations = obligations
-      .filter((obligation) => obligation.status !== 'PAID' && obligation.status !== 'SKIPPED')
-      .sort((left, right) => new Date(left.dueDate).getTime() - new Date(right.dueDate).getTime());
+      .filter(
+        (obligation) =>
+          obligation.status !== 'PAID' && obligation.status !== 'SKIPPED',
+      )
+      .sort(
+        (left, right) =>
+          new Date(left.dueDate).getTime() - new Date(right.dueDate).getTime(),
+      );
     let obligationsDueSoFar = 0;
     for (const obligation of activeObligations) {
       const before = obligationsDueSoFar;
-      obligationsDueSoFar += Number(obligation.amount);
-      const uncoveredAmount = Math.max(0, obligationsDueSoFar - availableForObligations)
-        - Math.max(0, before - availableForObligations);
+      obligationsDueSoFar = sumMoney(
+        [obligationsDueSoFar, Number(obligation.amount)],
+        quote.target,
+      );
+      const uncoveredAmount = sumMoney(
+        [
+          Math.max(
+            0,
+            sumMoney(
+              [obligationsDueSoFar, -availableForObligations],
+              quote.target,
+            ),
+          ),
+          -Math.max(
+            0,
+            sumMoney([before, -availableForObligations], quote.target),
+          ),
+        ],
+        quote.target,
+      );
       if (uncoveredAmount > 0) {
         warnings.push({
           code: 'obligation_at_risk',
@@ -159,9 +248,10 @@ export class DashboardService {
     for (const income of overdueOrDelayedIncome) {
       warnings.push({
         code: 'expected_income_delayed',
-        message: income.daysLate > 0
-          ? `${income.title} is ${income.daysLate} ${income.daysLate === 1 ? 'day' : 'days'} late and excluded from projected income.`
-          : `${income.title} is marked delayed and excluded from projected income.`,
+        message:
+          income.daysLate > 0
+            ? `${income.title} is ${income.daysLate} ${income.daysLate === 1 ? 'day' : 'days'} late and excluded from projected income.`
+            : `${income.title} is marked delayed and excluded from projected income.`,
         severity: income.daysLate >= 14 ? 'HIGH' : 'MEDIUM',
         amount: income.amount,
         title: income.title,
@@ -169,18 +259,10 @@ export class DashboardService {
       });
     }
 
-    const currenciesInUse = [...new Set(accounts.map((account) => account.currency))];
-    if (currenciesInUse.some((accountCurrency) => accountCurrency !== user.preferredCurrency)) {
-      warnings.push({
-        code: 'currency_mismatch',
-        message: 'Some funds use a different currency code. Totals do not perform foreign-exchange conversion.',
-        severity: 'LOW',
-      });
-    }
-
     return {
       userId,
       preferredCurrency: user.preferredCurrency,
+      fx: { estimated: quote.estimated, asOf: quote.asOf, stale: quote.stale },
       currentFunds,
       pendingIncome,
       projectedIncome,

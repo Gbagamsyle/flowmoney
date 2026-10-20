@@ -86,7 +86,7 @@ describe('standalone plan isolation', () => {
     expect(data).toMatchObject({
       mode: 'STANDALONE',
       startingFundsMinor: 125005,
-      bufferMinor: 12500,
+      bufferMinor: 12501,
     });
     expect(
       data.categories.create.every((c: any) => c.matches.length === 0),

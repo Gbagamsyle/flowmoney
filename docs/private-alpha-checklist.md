@@ -5,9 +5,9 @@ or an owner decision. Passing unit tests is not evidence of real authentication 
 
 ## Verified locally
 
-- [x] 188 API tests pass across 23 files, including origin configuration, parsing, classification,
+- [x] 205 API tests pass across 27 files, including origin configuration, parsing, classification,
   summaries, owner boundaries, plan isolation and account deletion regression coverage.
-- [x] 17 web logic tests pass (analytics consent, calculator, overview, planning inputs and statement filters).
+- [x] 18 web logic tests pass (analytics consent, calculator, overview, currency formatting, planning inputs and statement filters).
 - [x] Web TypeScript check and web/API production builds pass.
 - [x] Frozen dependency installation succeeds with the committed lockfile.
 - [x] Browser suite discovers the extended authenticated journey.
@@ -84,7 +84,8 @@ see [Clerk testing guidance](https://clerk.com/docs/guides/development/testing/o
 - [ ] Apply all tracked Prisma migrations to the intended deployment database using
   `pnpm --filter @flowmoney/api db:migrate:deploy`; generate the client and restart the API.
   Include `20261018230000_monthly_planning` and `20261019001000_standalone_plans`.
-  This release adds no new database migration.
+  Currency conversion additionally requires `20261020120000_original_currencies_and_fx_cache`.
+  This adds nullable original currencies and a public-rate cache; it does not backfill or convert saved amounts.
 - [ ] Set production `WEB_ORIGIN` to the exact deployed web origin, `NEXT_PUBLIC_API_URL` to the API,
   and use matching Clerk keys/allowed domains. Verify unauthenticated API requests return 401 and
   signed-in requests from the deployed site succeed.
@@ -110,7 +111,7 @@ see [Clerk testing guidance](https://clerk.com/docs/guides/development/testing/o
 - [ ] Review issues after the first week. Log severity, reproducible steps and synthetic examples;
   avoid collecting raw statements in analytics or issue trackers.
 - [ ] Choose the next release from observed problems. Candidates: data export and fewer manual
-  statement corrections. No automatic rollover, bank connection or currency conversion is promised.
+  statement corrections. No automatic rollover or bank connection is promised. Currency display conversion is an estimate, not money movement.
 
 Figma synchronization is separate design documentation work; remaining screens and visual QA are
 pending connector quota availability. It is not evidence that deployed product QA has passed.

@@ -4,6 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePreferredCurrency } from "@/components/settings/preferred-currency-provider";
+import { ConversionSummary } from "@/components/settings/conversion-summary";
 import { CURRENCIES } from "@/lib/currencies";
 import { formatMoney } from "@/lib/format-money";
 import {
@@ -272,6 +273,7 @@ export default function StatementsPage() {
           Understand your financial history. Review it before importing.
         </p>
       </div>
+      {statement && <ConversionSummary kind="statement" id={statement.id} source={statement.currency} revision={statement.status} />}
       <section className="space-y-4 rounded-xl border bg-card p-5">
         <h2 className="font-medium">Upload a digital statement</h2>
         <p className="text-sm text-muted-foreground">
@@ -341,7 +343,7 @@ export default function StatementsPage() {
         </form>
         <p className="text-xs text-muted-foreground">
           Confirm the currency printed on your statement. Values use your
-          preferred money formatting; no currency conversion is performed.
+          preferred money formatting. Transactions stay in the statement currency; a separate summary shows current-rate estimates when your display currency differs.
         </p>
       </section>
       {error && (

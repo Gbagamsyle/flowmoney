@@ -79,7 +79,7 @@ export default function ScenariosPage() {
       body: JSON.stringify({ changes }),
       signal,
     });
-    if (!response.ok) throw new Error(`Scenario evaluation failed (HTTP ${response.status}).`);
+    if (!response.ok) { const failure = await response.json().catch(() => ({})); throw new Error(failure.message ?? `Scenario evaluation failed (HTTP ${response.status}).`); }
     return await response.json() as ScenarioEvaluation;
   }, [getToken]);
 
@@ -97,6 +97,7 @@ export default function ScenariosPage() {
       return;
     }
 
+    setInputs(initialInputs); setEvaluation(null); setLoading(true);
     let active = true;
     const controller = new AbortController();
     void evaluate(toChanges(initialInputs), controller.signal)
@@ -104,7 +105,7 @@ export default function ScenariosPage() {
       .catch((cause) => { if (active && cause?.name !== "AbortError") setError(cause instanceof Error ? cause.message : "Could not load scenario baseline."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; controller.abort(); };
-  }, [evaluate, isLoaded, isSignedIn]);
+  }, [evaluate, isLoaded, isSignedIn, preferenceCurrency, userId]);
 
   useEffect(() => {
     if (!evaluation || loading) return;

@@ -1,3 +1,4 @@
+import { CurrencyReviewSection } from "@/components/settings/currency-review-section";
 import { AccountSettingsSection } from "@/components/settings/account-settings-section";
 import { AppearanceSettingsSection } from "@/components/settings/appearance-settings-section";
 import { DeleteAccountSection } from "@/components/settings/delete-account-section";
@@ -19,6 +20,7 @@ export default function SettingsPage() {
       <AccountSettingsSection />
       <AppearanceSettingsSection />
       <CurrencyPreferenceSection />
+      <CurrencyReviewSection />
       <AnalyticsConsentSection />
       <SupportSettingsSection />
       <DeleteAccountSection />
