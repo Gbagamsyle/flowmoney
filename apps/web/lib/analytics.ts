@@ -1,5 +1,13 @@
 export const ANALYTICS_CONSENT_KEY = "flowmoney:analytics-consent";
 
+const PRODUCT_EVENTS: readonly string[] = ["onboarding_completed", "first_fund_created", "first_expected_income_created", "first_obligation_created", "scenario_used", "dashboard_returned"];
+
+export function sanitizeAnalyticsEvent<T extends { event: string; properties: Record<string, unknown> }>(event: T | null): T | null {
+  if (!event || !PRODUCT_EVENTS.includes(event.event) || !hasAnalyticsConsent()) return null;
+  const { distinct_id, token, $device_id } = event.properties;
+  return { ...event, properties: { distinct_id, token, $device_id, $process_person_profile: false } };
+}
+
 export type ProductEvent =
   | "onboarding_completed"
   | "first_fund_created"
@@ -110,13 +118,14 @@ async function initializePostHog() {
       posthog.init(apiKey, {
         api_host:
           process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+        before_send: sanitizeAnalyticsEvent,
         autocapture: false,
         capture_pageview: false,
         capture_pageleave: false,
         disable_session_recording: true,
         disable_surveys: true,
         persistence: "localStorage",
-        person_profiles: "identified_only",
+        person_profiles: "never",
       });
     }
   })().catch((error) => {

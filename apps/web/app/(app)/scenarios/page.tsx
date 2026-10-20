@@ -1,4 +1,5 @@
 "use client";
+import { FinancialNotice } from "@/components/legal/financial-notice";
 
 import { useAuth } from "@clerk/nextjs";
 import { AlertTriangle, ArrowRight, GitBranch, RotateCcw } from "lucide-react";
@@ -149,6 +150,7 @@ export default function ScenariosPage() {
         <p className="text-sm font-medium text-muted-foreground">Plan before it happens</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight">Scenario planning</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">Test hypothetical changes against your real financial position. Evaluations are never saved to or applied to your accounts, income, or obligations.</p>
+        <div className="mt-3"><FinancialNotice /></div>
       </header>
 
       {error && <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive" role="alert"><span>{error}</span><Button variant="outline" size="sm" onClick={() => void retry()}>Try again</Button></div>}

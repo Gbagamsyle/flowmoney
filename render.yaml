@@ -1,0 +1,25 @@
+# Preview configuration: no paid service or automatic deployment is selected.
+services:
+  - type: web
+    name: flowmoney-api
+    runtime: node
+    plan: free
+    autoDeployTrigger: "off"
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @flowmoney/api db:generate && pnpm build:api
+    startCommand: node apps/api/dist/main.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false

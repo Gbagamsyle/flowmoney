@@ -1,3 +1,4 @@
+import { HealthModule } from './health/health.module.js';
 import { CurrenciesModule } from './currencies/currencies.module.js';
 import { PlanningModule } from './planning/planning.module.js';
 import { StatementsModule } from './statements/statements.module.js';
@@ -13,6 +14,7 @@ import { ScenariosModule } from './scenarios/scenarios.module.js';
 
 @Module({
   imports: [
+    HealthModule,
     CurrenciesModule,
     PlanningModule,
     StatementsModule,

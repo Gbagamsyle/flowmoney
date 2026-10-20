@@ -9,9 +9,10 @@
     "dev:all": "concurrently \"pnpm run dev:api\" \"pnpm run dev:web\"",
     "dev:web": "pnpm --filter @flowmoney/web dev",
     "dev:api": "pnpm --filter @flowmoney/api start:dev",
-    "build": "pnpm --filter @flowmoney/web build",
+    "build": "pnpm --filter @flowmoney/calculations build && pnpm --filter @flowmoney/web build",
     "build:api": "pnpm --filter @flowmoney/api build",
-    "typecheck": "pnpm --filter @flowmoney/web typecheck"
+    "typecheck": "pnpm --filter @flowmoney/web typecheck",
+    "preflight:privacy": "node scripts/check-privacy-readiness.mjs"
   },
   "keywords": [],
   "author": "",

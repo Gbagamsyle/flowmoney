@@ -1,3 +1,4 @@
+import { LegalLinks } from "@/components/legal/legal-links";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -485,7 +486,7 @@ export default async function Home() {
         <footer className="flex flex-col gap-5 border-t border-border py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <BrandMark className="gap-3" iconClassName="size-7" textClassName="text-sm" />
 
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center gap-5">
             <Link href="#how-it-works" className="transition hover:text-foreground">
               How it works
             </Link>
@@ -496,6 +497,7 @@ export default async function Home() {
               Sign in
             </Link>
           </div>
+          <LegalLinks />
         </footer>
       </div>
     </main>

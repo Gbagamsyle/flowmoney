@@ -285,6 +285,7 @@ async function statementAndPlanning(page: Page) {
   const date = `${month}-01`;
   await page.goto("/statements");
   await page.getByLabel("Statement currency").selectOption("USD");
+  await page.getByRole("checkbox", { name: "I understand that FlowMoney will process this statement to extract and categorise financial transactions." }).check();
   await page.getByLabel("Statement file").setInputFiles({
     name: "synthetic-release-qa.csv",
     mimeType: "text/csv",
