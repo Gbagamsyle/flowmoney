@@ -56,7 +56,103 @@ function findHeader(line: PdfPage['items']): Layout | undefined {
   };
 }
 
+// Moniepoint uses a centered, wrapped timestamp and separate narration baselines.
+// Group by timestamp anchors instead of interpreting each text baseline as a row.
+function wrappedTimestampTable(pages: PdfPage[]): string[][] | undefined {
+  type Piece = { label: string; text: string; y: number };
+  const rows: Piece[][] = [];
+  let recognized = false;
+  let layout: Layout | undefined;
+  let dateLeft = 0;
+  for (const [pageIndex, page] of pages.entries()) {
+    const narration = page.items.find((i) => i.text.trim() === 'Narration');
+    if (narration) {
+      const band = page.items.filter(
+        (i) => Math.abs(i.y - narration.y) < 2 && i.text.trim(),
+      );
+      if (
+        !['Date', 'Narration', 'Reference', 'Debit', 'Credit', 'Balance'].every(
+          (label) => band.some((i) => i.text.trim() === label),
+        )
+      )
+        return undefined;
+      layout = findHeader(band);
+      dateLeft = band.find((i) => i.text.trim() === 'Date')!.x;
+    }
+    if (!layout) return undefined;
+    const dateColumn = layout.columns.findIndex((c) => c.label === 'date');
+    const columnOf = (i: PdfPage['items'][number]) => {
+      const index = layout!.boundaries.findIndex((x) => i.x + i.width / 2 < x);
+      return index < 0 ? layout!.columns.length - 1 : index;
+    };
+    const content = page.items.filter(
+      (i) =>
+        i.text.trim() &&
+        i.y < (narration ? narration.y - 2 : Infinity) &&
+        i.x >= dateLeft - 2,
+    );
+    const anchors = content
+      .filter(
+        (i) =>
+          columnOf(i) === dateColumn &&
+          /^\d{4}-\d{2}-\d{2}T\d{2}:/.test(i.text.trim()),
+      )
+      .sort((a, b) => b.y - a.y);
+    if (!anchors.length) return undefined;
+    recognized = true;
+    const groups = anchors.map(() => [] as Piece[]);
+    for (const item of content) {
+      const label = layout.columns[columnOf(item)].label;
+      if (!['date', 'description', 'debit', 'credit'].includes(label ?? ''))
+        continue;
+      const tagged = {
+        label: label!,
+        text: item.text,
+        y: item.y - pageIndex * 10000,
+      };
+      if (item.y > anchors[0].y + 25) {
+        if (!rows.length)
+          throw new Error(
+            'Unmatched transaction continuation in PDF. Use CSV/XLSX.',
+          );
+        rows.at(-1)!.push(tagged);
+        continue;
+      }
+      let index = anchors
+        .slice(1)
+        .findIndex((anchor, n) => item.y > (anchors[n].y + anchor.y) / 2);
+      if (index < 0) index = anchors.length - 1;
+      groups[index].push(tagged);
+    }
+    // Store column labels independently of page coordinates.
+    for (const group of groups) rows.push(group);
+  }
+  if (!recognized) return undefined;
+  const table = [['Date', 'Description', 'Debit', 'Credit']];
+  for (const row of rows) {
+    const values: Record<string, string[]> = {};
+    for (const item of row.sort((a, b) => b.y - a.y)) {
+      const { label, text } = item;
+      (values[label] ??= []).push(text.trim());
+    }
+    const date = (values.date ?? []).join('');
+    if (
+      !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(date)
+    )
+      throw new Error('Incomplete transaction timestamp in PDF. Use CSV/XLSX.');
+    table.push([
+      date.slice(0, 10),
+      (values.description ?? []).join(' '),
+      (values.debit ?? []).join(''),
+      (values.credit ?? []).join(''),
+    ]);
+  }
+  return table;
+}
+
 export function pdfPositionTable(pages: PdfPage[]): string[][] {
+  const wrapped = wrappedTimestampTable(pages);
+  if (wrapped) return wrapped;
   const transactions: {
     date: string;
     description: string;

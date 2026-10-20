@@ -108,3 +108,93 @@ describe('PDF column layout', () => {
     expect(rows[0].description).toBe('Salary international transfer');
   });
 });
+
+describe('wrapped Moniepoint timestamps', () => {
+  const header = [
+    'Date',
+    'Narration',
+    'Reference',
+    'Debit',
+    'Credit',
+    'Balance',
+  ].map((text, i) => ({ text, x: i * 150, y: 700, width: 60 }));
+  it('groups centered money and wrapped dates/narrations into one transaction', () => {
+    const rows = parseTable(
+      pdfPositionTable([
+        {
+          items: [
+            ...header,
+            { text: '2026-01-01T07:', x: 0, y: 660, width: 90 },
+            { text: '34:56', x: 0, y: 647, width: 30 },
+            { text: 'Transfer from', x: 150, y: 666, width: 80 },
+            { text: 'Synthetic sender', x: 150, y: 653, width: 90 },
+            { text: '0.00', x: 450, y: 654, width: 30 },
+            { text: '100.00', x: 600, y: 654, width: 40 },
+            { text: '2026-01-02T09:', x: 0, y: 590, width: 90 },
+            { text: '12', x: 0, y: 577, width: 30 },
+            { text: 'POS synthetic shop', x: 150, y: 590, width: 100 },
+            { text: '12.50', x: 450, y: 584, width: 35 },
+            { text: '0.00', x: 600, y: 584, width: 30 },
+          ],
+        },
+      ]),
+      'NGN',
+    );
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatchObject({
+      date: '2026-01-01',
+      description: 'Transfer from Synthetic sender',
+      direction: 'IN',
+      amountMinor: 10000,
+    });
+    expect(rows[1]).toMatchObject({
+      date: '2026-01-02',
+      direction: 'OUT',
+      amountMinor: 1250,
+    });
+  });
+  it('joins a row split across a page without repeating the header', () => {
+    const rows = parseTable(
+      pdfPositionTable([
+        {
+          items: [
+            ...header,
+            { text: '2026-01-01T07:', x: 0, y: 40, width: 90 },
+            { text: 'Transfer from', x: 150, y: 45, width: 80 },
+            { text: '0.00', x: 450, y: 35, width: 30 },
+            { text: '100.00', x: 600, y: 35, width: 40 },
+          ],
+        },
+        {
+          items: [
+            { text: '34:56', x: 0, y: 740, width: 30 },
+            { text: 'Synthetic sender', x: 150, y: 740, width: 90 },
+            { text: '2026-01-02T09:', x: 0, y: 660, width: 90 },
+            { text: '12:00', x: 0, y: 647, width: 30 },
+            { text: 'POS synthetic shop', x: 150, y: 660, width: 100 },
+            { text: '12.50', x: 450, y: 654, width: 35 },
+            { text: '0.00', x: 600, y: 654, width: 30 },
+          ],
+        },
+      ]),
+      'NGN',
+    );
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatchObject({
+      description: 'Transfer from Synthetic sender',
+      amountMinor: 10000,
+    });
+  });
+  it('rejects incomplete timestamps instead of dropping date fragments', () => {
+    expect(() =>
+      pdfPositionTable([
+        {
+          items: [
+            ...header,
+            { text: '2026-01-01T07:', x: 0, y: 660, width: 90 },
+          ],
+        },
+      ]),
+    ).toThrow('Incomplete transaction timestamp');
+  });
+});
