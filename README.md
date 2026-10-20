@@ -6,7 +6,7 @@ FlowMoney is a cash-flow planning application for freelancers, contractors, crea
 
 FlowMoney is non-custodial: it does not hold, transfer, or invest user funds. The MVP begins with manual financial data entry.
 
-**Status:** early development. The repository contains Clerk authentication, first-time onboarding, current-funds entry, expected-income and obligation APIs, and an initial dashboard. The planning and financial model continue to evolve.
+**Status:** private-alpha candidate, locally verified. Deployment and real-user launch are still pending. See the [deployment and PWA guide](docs/deployment.md), [release checklist](docs/private-alpha-checklist.md) and [privacy readiness review](docs/privacy-readiness.md).
 
 ## Product direction
 

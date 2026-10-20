@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-21",
+  "scope": "PWA and Vercel/Render deployment preparation",
+  "typecheck": "passed",
+  "apiTests": {
+    "passed": 212,
+    "files": 28
+  },
+  "webLogicTestsPassed": 24,
+  "apiBuild": "passed",
+  "webProductionBuild": "passed, including the shared-package build step",
+  "pwaBrowser": {
+    "passed": true,
+    "manifestAndIconDimensions": true,
+    "workerControlsPage": true,
+    "workerNoStoreHeader": true,
+    "cachedPaths": [
+      "/offline.html",
+      "/pwa/apple-touch-icon.png",
+      "/pwa/icon-192.png",
+      "/pwa/icon-512.png",
+      "/pwa/icon-maskable-512.png"
+    ],
+    "installability": {
+      "notAvailable": true
+    },
+    "offlineNavigation": true,
+    "onlineRecovery": true,
+    "layouts": [
+      {
+        "scheme": "light",
+        "width": 320,
+        "passed": true
+      },
+      {
+        "scheme": "light",
+        "width": 390,
+        "passed": true
+      },
+      {
+        "scheme": "light",
+        "width": 844,
+        "passed": true
+      },
+      {
+        "scheme": "light",
+        "width": 1440,
+        "passed": true
+      },
+      {
+        "scheme": "dark",
+        "width": 320,
+        "passed": true
+      },
+      {
+        "scheme": "dark",
+        "width": 390,
+        "passed": true
+      },
+      {
+        "scheme": "dark",
+        "width": 844,
+        "passed": true
+      },
+      {
+        "scheme": "dark",
+        "width": 1440,
+        "passed": true
+      }
+    ],
+    "physicalInstallation": "not tested"
+  },
+  "deployment": "not performed; owner will import repository",
+  "plan": "free Render preview; no paid resources created",
+  "remaining": [
+    "final production vendor/secrets/origins and target migration",
+    "privacy release review remains incomplete",
+    "physical Android/iOS/desktop installation and standalone sign-in verification after HTTPS deployment"
+  ],
+  "priorFailedRuns": [
+    "parallel build/type generation produced a corrupted generated cache; cleared only generated development types and reran sequentially",
+    "XLSX tests timed out during parallel builds; full 212-test API run passed once build workload finished"
+  ],
+  "authenticatedJourney": {
+    "passed": true,
+    "testsPassed": 2,
+    "duration": "5.2 minutes",
+    "realClerkAndAPI": true,
+    "isolatedDatabase": true,
+    "syntheticFinancialRecords": true,
+    "deterministicRateSnapshot": true,
+    "responsiveCaptures": 54,
+    "desktopMainAccessibilityChecks": 18,
+    "coverage": [
+      "signup and onboarding",
+      "statement upload acknowledgement and explicit approval",
+      "linked and standalone planning",
+      "nine responsive pages in both themes",
+      "new Settings install section",
+      "currency switching and original-unit editing",
+      "account deletion and fresh onboarding"
+    ],
+    "temporaryUserAndDatabase": "removed"
+  }
+}

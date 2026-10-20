@@ -1,0 +1,22 @@
+{
+  "operator": "GeeTech",
+  "privacyEmail": "ogabasyle@gmail.com",
+  "version": "0.1",
+  "status": "draft",
+  "effectiveDate": null,
+  "productionProviders": {
+    "web": "Vercel (planned)",
+    "api": "Render (planned)",
+    "database": "Neon",
+    "authentication": "Clerk"
+  },
+  "productionRegionsAndTransfersConfirmed": false,
+  "vendorAgreementsReviewed": false,
+  "retentionAndBackupsConfirmed": false,
+  "productionAccessAndEnvironmentSeparationVerified": false,
+  "diagnosticsAndAnalyticsDeliveryVerified": false,
+  "rightsAndIncidentRunbooksRehearsed": false,
+  "dpiaAndRegistrationAssessmentReviewed": false,
+  "legalReviewApproved": false,
+  "publishedNoticesMatchProduction": false
+}

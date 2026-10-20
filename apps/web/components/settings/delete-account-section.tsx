@@ -65,7 +65,7 @@ export function DeleteAccountSection() {
           Delete FlowMoney account
         </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          This permanently removes your saved accounts, expected income,
+          This cannot be undone. Your external bank accounts and funds are not affected. This permanently removes your saved accounts, expected income,
           obligations, monthly plans and planning actions, statement imports and
           transactions, remembered categorization rules, and onboarding progress
           from FlowMoney. Your Clerk sign-in identity is not deleted. If you

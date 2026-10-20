@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-20",
+  "scope": "GeeTech FlowMoney pre-launch legal/privacy implementation",
+  "typecheck": "passed",
+  "webProductionBuild": "passed",
+  "webLogicTestsPassed": 20,
+  "publicLegalPageChecks": {
+    "count": 20,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "widths": [
+      320,
+      1440
+    ],
+    "routes": [
+      "/privacy",
+      "/terms",
+      "/financial-disclaimer",
+      "/statement-processing",
+      "/data-retention"
+    ],
+    "localProductionBuild": true,
+    "unauthenticatedAccess": "passed",
+    "mainContentAccessibility": "passed",
+    "landingAndSignupLinks": "passed"
+  },
+  "statementNoticeChecks": {
+    "count": 8,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "widths": [
+      320,
+      390,
+      844,
+      1440
+    ],
+    "acknowledgementBeforeSelection": "passed",
+    "withdrawingAcknowledgementClearsSelection": "passed",
+    "authenticationAndAPI": "stubbed component checks, not a new live upload"
+  },
+  "monitoringTests": [
+    "Sentry strips personal and financial payload containers",
+    "PostHog filters URLs/custom properties and rechecks consent"
+  ],
+  "privacyPreflight": "expected failure: operational review and effective date incomplete",
+  "deployment": "not performed",
+  "newEnvironmentVariables": [],
+  "newMigrations": [],
+  "knownLimitations": [
+    "policies remain pre-launch drafts pending review",
+    "production regions/contracts, provider retention and backup lifecycle are not confirmed",
+    "manual rights request channel; no self-service full-account export",
+    "per-upload acknowledgement is UI state, not a durable consent ledger",
+    "Sentry diagnostic details are intentionally heavily reduced"
+  ]
+}

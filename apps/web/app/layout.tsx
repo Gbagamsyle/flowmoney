@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { PwaProvider } from "@/components/pwa/pwa-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cn } from "@flowmoney/ui/lib/utils";
@@ -15,12 +16,16 @@ export const metadata: Metadata = {
   },
   description:
     "FlowMoney helps you understand cash flow, plan around irregular income, and spend with confidence.",
+  applicationName: "FlowMoney",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "FlowMoney" },
   icons: {
     icon: [{ url: "/flowmoney-icon_1.png", type: "image/png", sizes: "512x512" }],
     shortcut: "/flowmoney-icon_1.png",
-    apple: "/flowmoney-icon_1.png",
+    apple: "/pwa/apple-touch-icon.png",
   },
 };
+
+export const viewport: Viewport = { themeColor: [{media:"(prefers-color-scheme: light)",color:"#fafafa"},{media:"(prefers-color-scheme: dark)",color:"#0a0a0a"}] };
 
 export default function RootLayout({
   children,
@@ -33,7 +38,7 @@ export default function RootLayout({
     >
       <body>
         <ClerkProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider><PwaProvider>{children}</PwaProvider></ThemeProvider>
         </ClerkProvider>
       </body>
     </html>

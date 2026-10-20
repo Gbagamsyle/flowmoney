@@ -101,6 +101,7 @@ export default function StatementsPage() {
     Record<string, { category: string; reviewed: boolean }>
   >({});
   const [busy, setBusy] = useState(false);
+  const [processingAcknowledged, setProcessingAcknowledged] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<TransactionFilters>({
     ...emptyFilters,
@@ -158,6 +159,7 @@ export default function StatementsPage() {
     setChoices({});
     setHistory([]);
     setFile(null);
+    setProcessingAcknowledged(false);
     setSavedPreferences([]);
     if (isLoaded && isSignedIn)
       void Promise.all([request(), request("/category-rules")])
@@ -286,17 +288,23 @@ export default function StatementsPage() {
           (negative = money out). Numeric dates use day/month/year. PDF tables
           need clearly separated columns. CSV is the most reliable option.
         </p>
+        <div className="space-y-3 border-t pt-4 text-sm leading-6">
+          <p><span className="font-medium">Before you upload.</span> Your statement contains financial information. We process the raw file temporarily in memory, then save parsed rows for review, including excluded rows until you delete the statement. Only transactions you approve count as imported history. We never ask for a banking PIN, password or OTP.</p>
+          <label className="flex items-start gap-3"><input type="checkbox" className="mt-1 size-4 shrink-0 accent-foreground" checked={processingAcknowledged} disabled={busy} onChange={e => {setProcessingAcknowledged(e.target.checked);setFile(null);}} /><span>I understand that FlowMoney will process this statement to extract and categorise financial transactions.</span></label>
+          <p className="flex flex-wrap gap-x-4 gap-y-1"><a href="/statement-processing" className="underline underline-offset-4">How statement processing works</a></p>
+        </div>
         <form
           className="flex flex-wrap items-end gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!file) return;
+            if (!file || !processingAcknowledged) return;
             void run(async () => {
               const data = new FormData();
               data.append("file", file);
               data.append("currency", statementCurrency);
               show(await request("", { method: "POST", body: data }));
               setFile(null);
+              setProcessingAcknowledged(false);
               setHistory(await request());
             });
           }}
@@ -305,7 +313,8 @@ export default function StatementsPage() {
             Statement file
             <input
               required
-              disabled={busy}
+              key={String(processingAcknowledged)}
+              disabled={busy || !processingAcknowledged}
               type="file"
               accept=".pdf,.csv,.xlsx"
               className="mt-2 block w-full max-w-sm cursor-pointer rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 file:mr-3 file:cursor-pointer file:rounded-lg file:border file:border-input file:bg-background file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted disabled:file:cursor-not-allowed"
@@ -336,7 +345,7 @@ export default function StatementsPage() {
           </label>
           <button
             className={`${button} bg-primary text-primary-foreground`}
-            disabled={busy || !file || !isSignedIn}
+            disabled={busy || !file || !isSignedIn || !processingAcknowledged}
           >
             {busy ? "Processing…" : "Analyze statement"}
           </button>
