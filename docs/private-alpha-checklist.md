@@ -1,6 +1,6 @@
 # Private-alpha release checklist
 
-Recorded 19 October 2026. A checked item has local evidence; unchecked items require a live run
+Recorded 19 October 2026; interface checks updated 20 October 2026. A checked item has local evidence; unchecked items require a live run
 or an owner decision. Passing unit tests is not evidence of real authentication or device coverage.
 
 ## Verified locally
@@ -13,6 +13,10 @@ or an owner decision. Passing unit tests is not evidence of real authentication 
 - [x] Browser suite discovers the extended authenticated journey.
 - [x] Browser QA artifacts are excluded from version control; authenticated traces are disabled.
 - [x] Theme-aware in-app logo assets are included in the release changes.
+- [x] Guided walkthrough, landing icons and Help & feedback refinements verified: 30 layout
+  checks and four main-content accessibility checks, plus all nine tour steps at four viewport
+  sizes and 32 tour accessibility checks. [Interface evidence](qa/interface-polish-2026-10-20.json).
+  Tour completion is remembered per user/browser; [behavior and limitations](product-tour.md).
 
 - [x] Live authenticated local PDF/CSV/XLSX API checks passed in an empty temporary database:
   review before approval, duplicate reuse, repeated approval rejection, unsupported PDF rejection
