@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-20",
+  "fullJourney": "passed",
+  "browserTestsPassed": 2,
+  "duration": "5.1 minutes",
+  "responsiveScreenshots": 54,
+  "desktopMainContentAccessibilityChecks": 18,
+  "viewports": [
+    [
+      390,
+      844
+    ],
+    [
+      820,
+      1180
+    ],
+    [
+      1440,
+      900
+    ]
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "coverage": [
+    "Clerk sign-up screen",
+    "real Clerk sign-in",
+    "onboarding",
+    "walkthrough welcome and skip",
+    "statement review and explicit approval",
+    "linked and standalone planning",
+    "responsive financial pages",
+    "Settings walkthrough replay and Escape",
+    "currency acknowledgement",
+    "FlowMoney data deletion",
+    "fresh onboarding"
+  ],
+  "isolation": {
+    "newEmptyDatabase": true,
+    "temporaryClerkTestIdentity": true,
+    "existingFinancialDataUnchanged": true,
+    "environmentFilesUnchanged": true
+  },
+  "cleanup": {
+    "temporaryClerkIdentityRemoved": true,
+    "temporaryDatabaseRemoved": true
+  },
+  "screenshots": [
+    "accounts-desktop-dark.png",
+    "accounts-desktop-light.png",
+    "accounts-mobile-dark.png",
+    "accounts-mobile-light.png",
+    "accounts-tablet-dark.png",
+    "accounts-tablet-light.png",
+    "calculator-desktop-dark.png",
+    "calculator-desktop-light.png",
+    "calculator-mobile-dark.png",
+    "calculator-mobile-light.png",
+    "calculator-tablet-dark.png",
+    "calculator-tablet-light.png",
+    "dashboard-desktop-dark.png",
+    "dashboard-desktop-light.png",
+    "dashboard-mobile-dark.png",
+    "dashboard-mobile-light.png",
+    "dashboard-tablet-dark.png",
+    "dashboard-tablet-light.png",
+    "income-desktop-dark.png",
+    "income-desktop-light.png",
+    "income-mobile-dark.png",
+    "income-mobile-light.png",
+    "income-tablet-dark.png",
+    "income-tablet-light.png",
+    "obligations-desktop-dark.png",
+    "obligations-desktop-light.png",
+    "obligations-mobile-dark.png",
+    "obligations-mobile-light.png",
+    "obligations-tablet-dark.png",
+    "obligations-tablet-light.png",
+    "planning-desktop-dark.png",
+    "planning-desktop-light.png",
+    "planning-mobile-dark.png",
+    "planning-mobile-light.png",
+    "planning-tablet-dark.png",
+    "planning-tablet-light.png",
+    "scenarios-desktop-dark.png",
+    "scenarios-desktop-light.png",
+    "scenarios-mobile-dark.png",
+    "scenarios-mobile-light.png",
+    "scenarios-tablet-dark.png",
+    "scenarios-tablet-light.png",
+    "settings-desktop-dark.png",
+    "settings-desktop-light.png",
+    "settings-mobile-dark.png",
+    "settings-mobile-light.png",
+    "settings-tablet-dark.png",
+    "settings-tablet-light.png",
+    "statements-desktop-dark.png",
+    "statements-desktop-light.png",
+    "statements-mobile-dark.png",
+    "statements-mobile-light.png",
+    "statements-tablet-dark.png",
+    "statements-tablet-light.png"
+  ]
+}
