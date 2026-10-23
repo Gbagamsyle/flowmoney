@@ -161,7 +161,7 @@ export default function ScenariosPage() {
         <div className="grid items-start gap-5 xl:grid-cols-[0.9fr_1.1fr]">
           <section className="space-y-5 rounded-2xl border bg-card p-5 shadow-sm sm:p-6" aria-labelledby="scenario-input-title">
             <div className="flex items-start justify-between gap-3">
-              <div><div className="flex items-center gap-2"><GitBranch className="size-4 text-primary" /><h2 id="scenario-input-title" className="text-lg font-semibold">Build a scenario</h2></div><p className="mt-1 text-sm text-muted-foreground">Change one or more assumptions; results recalculate from backend data.</p></div>
+              <div><div className="flex items-center gap-2"><GitBranch className="size-4 text-primary-ink" /><h2 id="scenario-input-title" className="text-lg font-semibold">Build a scenario</h2></div><p className="mt-1 text-sm text-muted-foreground">Change one or more assumptions; results recalculate from backend data.</p></div>
               <Button type="button" variant="ghost" size="sm" onClick={reset} disabled={Object.entries(inputs).every(([key, value]) => value === initialInputs[key as keyof Inputs])}><RotateCcw className="mr-1 size-3.5" />Discard</Button>
             </div>
 
@@ -187,7 +187,7 @@ export default function ScenariosPage() {
           </section>
 
           <section className="space-y-5 rounded-2xl border bg-card p-5 shadow-sm sm:p-6" aria-labelledby="scenario-results-title" aria-live="polite">
-            <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-medium text-primary">{evaluating ? "Updating…" : "Compared with current position"}</p><h2 id="scenario-results-title" className="mt-1 text-xl font-semibold">Scenario result</h2></div><RiskBadge risk={evaluation.scenario.shortfallRisk} /></div>
+            <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-medium text-primary-ink">{evaluating ? "Updating…" : "Compared with current position"}</p><h2 id="scenario-results-title" className="mt-1 text-xl font-semibold">Scenario result</h2></div><RiskBadge risk={evaluation.scenario.shortfallRisk} /></div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <ResultCard label="Safe to spend" baseline={evaluation.baseline.safeToSpend} scenario={evaluation.scenario.safeToSpend} currency={currency} emphasis />

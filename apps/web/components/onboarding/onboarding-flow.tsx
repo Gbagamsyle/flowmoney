@@ -289,7 +289,7 @@ export function OnboardingFlow() {
           {step === 0 && (
             <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-4">
-                <div className="text-xs font-medium uppercase tracking-[0.18em] text-primary [font-family:var(--font-geist-mono),ui-monospace,Sans-serif]">Financial clarity for real life</div>
+                <div className="text-xs font-medium uppercase tracking-[0.18em] text-primary-ink [font-family:var(--font-geist-mono),ui-monospace,Sans-serif]">Financial clarity for real life</div>
                 <div>
                   <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">See your money clearly.</h1>
                   <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">FlowMoney helps you track what’s available now, what’s coming in, and what needs covering—without the spreadsheet chaos.</p>
@@ -316,7 +316,7 @@ export function OnboardingFlow() {
           {step === 1 && (
             <div className="max-w-2xl space-y-6">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-primary">Step 1 · Your preference</p>
+                <p className="text-sm font-medium text-primary-ink">Step 1 · Your preference</p>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">What currency do you mainly use?</h1>
                 <p className="text-muted-foreground">We suggested {currency} based on your browser region. Confirm it or choose another currency; you can change it later in Settings.</p>
               </div>
@@ -351,7 +351,7 @@ export function OnboardingFlow() {
           {step === 2 && (
             <form onSubmit={saveFunds} className="space-y-7">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-primary">Step 1 · Cash on hand</p>
+                <p className="text-sm font-medium text-primary-ink">Step 1 · Cash on hand</p>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">How much is available right now?</h1>
                 <p className="text-muted-foreground">This is the cash you can access immediately, separate from future income.</p>
               </div>
@@ -390,7 +390,7 @@ export function OnboardingFlow() {
           {step === 3 && (
             <form onSubmit={saveIncome} className="space-y-7">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-primary">Step 2 · Future inflow</p>
+                <p className="text-sm font-medium text-primary-ink">Step 2 · Future inflow</p>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">What cash is coming soon?</h1>
                 <p className="text-muted-foreground">Expected income stays separate from the money you already have available.</p>
               </div>
@@ -415,7 +415,7 @@ export function OnboardingFlow() {
           {step === 4 && (
             <form onSubmit={saveObligation} className="space-y-7">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-primary">Step 3 · What’s due</p>
+                <p className="text-sm font-medium text-primary-ink">Step 3 · What’s due</p>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">What needs to be covered next?</h1>
                 <p className="text-muted-foreground">Add bills, essentials, or commitments that should stay visible in your plan.</p>
               </div>
@@ -444,7 +444,7 @@ export function OnboardingFlow() {
           {step === 5 && (
             <div className="space-y-7">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-primary">Your starting picture</p>
+                <p className="text-sm font-medium text-primary-ink">Your starting picture</p>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">A clearer cash view is ready.</h1>
                 <p className="text-muted-foreground">Here’s the snapshot from the information you added.</p>
               </div>

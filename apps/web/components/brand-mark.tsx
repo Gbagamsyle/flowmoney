@@ -19,7 +19,7 @@ export function BrandMark({
     <div className={cn("flex items-center gap-3", className)}>
       <div
         className={cn(
-          "flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-transparent",
+          "flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary p-1",
           iconClassName,
         )}
       >
@@ -29,15 +29,7 @@ export function BrandMark({
           width={72}
           height={72}
           priority
-          className="block h-full w-full object-contain dark:hidden"
-        />
-        <Image
-          src="/flowmoney-icon-dark.png"
-          alt="FlowMoney logo"
-          width={72}
-          height={72}
-          priority
-          className="hidden h-full w-full object-contain dark:block"
+          className="block h-full w-full object-contain"
         />
       </div>
       {showText ? (
