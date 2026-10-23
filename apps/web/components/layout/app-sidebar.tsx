@@ -60,7 +60,7 @@ export function AppSidebar() {
         className={cn(
           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
           active
-            ? "bg-primary/10 text-primary"
+            ? "bg-primary/10 text-primary-ink"
             : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
@@ -114,7 +114,7 @@ export function AppSidebar() {
               aria-label={item.label}
               className={cn(
                 "flex min-w-[4rem] flex-1 flex-col items-center gap-1 rounded-md px-0.5 py-2 text-[9px] font-medium sm:text-[10px]",
-                active ? "text-primary" : "text-muted-foreground",
+                active ? "text-primary-ink" : "text-muted-foreground",
               )}
             >
               <Icon className="size-4 shrink-0" />

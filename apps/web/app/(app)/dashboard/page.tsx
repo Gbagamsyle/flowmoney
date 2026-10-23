@@ -8,8 +8,11 @@ import {
   CalendarDays,
   CircleDollarSign,
   Clock3,
+  ChartNoAxesCombined,
   ListChecks,
   ShieldCheck,
+  TrendingUp,
+  WalletCards,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@flowmoney/ui/components/button";
@@ -168,7 +171,7 @@ export default function DashboardPage() {
       ) : noFinancialData ? (
         <section className="rounded-2xl border bg-card p-6 shadow-sm sm:p-10">
           <div className="mx-auto max-w-xl text-center">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary-ink">
               <CircleDollarSign className="size-7" />
             </div>
             <h2 className="mt-5 text-2xl font-semibold tracking-tight">
@@ -229,12 +232,14 @@ export default function DashboardPage() {
               value={formatMoney(summary.safeToSpend, dashboardCurrency)}
               description="After commitments and buffer. Excludes expected income and Planning allocations."
               emphasis
+              icon={CircleDollarSign}
             />
             <div className="grid gap-4 md:grid-cols-3">
               <FinancialSummaryCard
                 label="Current funds"
                 value={formatMoney(summary.currentFunds, dashboardCurrency)}
                 description="The balances you’ve recorded across your accounts."
+                icon={WalletCards}
               />
               <FinancialSummaryCard
                 label="Unpaid commitments"
@@ -243,11 +248,13 @@ export default function DashboardPage() {
                   dashboardCurrency,
                 )}
                 description="All unpaid commitments, including overdue items. Deducted from the estimate above."
+                icon={ListChecks}
               />
               <FinancialSummaryCard
                 label="Safety buffer"
                 value={formatMoney(summary.minimumBuffer, dashboardCurrency)}
                 description="10% of current funds, reserved in this estimate for unexpected costs."
+                icon={ShieldCheck}
               />
             </div>
           </section>
@@ -358,6 +365,7 @@ export default function DashboardPage() {
                 label="Projected income"
                 value={formatMoney(summary.projectedIncome, dashboardCurrency)}
                 description="Expected payments excluding late or delayed income. Payment isn’t guaranteed."
+                icon={TrendingUp}
               />
               <FinancialSummaryCard
                 label="Projected position"
@@ -366,6 +374,7 @@ export default function DashboardPage() {
                   dashboardCurrency,
                 )}
                 description="Current funds − protected obligations − safety buffer + projected income. Excludes Planning category allocations. A negative amount means a gap remains."
+                icon={ChartNoAxesCombined}
               />
             </div>
             <p className="text-sm text-muted-foreground">
@@ -380,7 +389,7 @@ export default function DashboardPage() {
             <DashboardList
               title="Upcoming obligations"
               description="Next unpaid commitments, earliest first"
-              icon={<ListChecks className="size-4" />}
+              icon={<ListChecks className="size-4 text-primary-ink" />}
               emptyText="Add bills or commitments you want to keep in view."
               emptyHref="/obligations"
               emptyAction="Add an obligation"
@@ -410,7 +419,7 @@ export default function DashboardPage() {
             <DashboardList
               title="Expected income"
               description="Pending payments, including late or delayed items"
-              icon={<CircleDollarSign className="size-4" />}
+              icon={<CircleDollarSign className="size-4 text-primary-ink" />}
               emptyText="Add payments you expect to receive so you can plan ahead."
               emptyHref="/income"
               emptyAction="Add expected income"
@@ -486,7 +495,7 @@ function DashboardList({
         <Link
           href={emptyHref}
           aria-label={`View all ${title.toLowerCase()}`}
-          className="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+          className="inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-primary-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
         >
           View all <ArrowRight aria-hidden="true" className="size-3.5" />
         </Link>
@@ -496,7 +505,7 @@ function DashboardList({
           <p>{emptyText}</p>
           <Link
             href={emptyHref}
-            className="mt-3 inline-flex items-center gap-1 font-medium text-foreground"
+            className="mt-3 inline-flex items-center gap-1 font-medium text-foreground hover:text-primary-ink"
           >
             {emptyAction}
             <ArrowRight className="size-3.5" />

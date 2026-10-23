@@ -30,7 +30,7 @@ export function FinancialSummaryCard({
           {Icon && (
             <Icon
               aria-hidden="true"
-              className="size-4 shrink-0 text-muted-foreground"
+              className="size-8 shrink-0 rounded-lg bg-primary/10 p-1.5 text-primary-ink"
             />
           )}
           <p

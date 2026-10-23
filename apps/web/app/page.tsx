@@ -167,11 +167,11 @@ export default async function Home() {
 
               <div className="mt-8 flex flex-wrap items-center gap-5 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-foreground" />
+                  <span className="size-2 rounded-full bg-primary" />
                   Built for irregular income
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-foreground" />
+                  <span className="size-2 rounded-full bg-primary" />
                   See what&apos;s safe to spend
                 </div>
               </div>
@@ -276,7 +276,7 @@ export default async function Home() {
             <div className="grid gap-5 sm:grid-cols-2">
               {capabilities.map(({ icon: Icon, title, text }) => (
                 <div key={title} className="rounded-[24px] border border-border bg-muted/30 p-5">
-                  <div className="mb-4 inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-foreground">
+                  <div className="mb-4 inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary-ink">
                     <Icon aria-hidden="true" className="size-5 shrink-0" strokeWidth={1.75} />
                   </div>
                   <h3 className="text-xl font-medium tracking-[-0.04em] text-foreground">
@@ -333,7 +333,7 @@ export default async function Home() {
                   "Build a calmer rhythm into your financial life.",
                 ].map((line) => (
                   <div key={line} className="flex items-start gap-3">
-                    <span className="mt-1 flex size-5 items-center justify-center rounded-full bg-foreground text-background">
+                    <span className="mt-1 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <Check className="size-3" />
                     </span>
                     <p className="text-base leading-6 text-muted-foreground">{line}</p>
@@ -380,7 +380,7 @@ export default async function Home() {
                   ].map((item) => (
                     <div key={item} className="flex items-center justify-between gap-4 border-t border-border pt-3">
                       <span className="text-sm text-muted-foreground">{item}</span>
-                      <span className="text-sm font-medium text-foreground">Yes</span>
+                      <span className="text-sm font-medium text-primary-ink">Yes</span>
                     </div>
                   ))}
                 </div>
@@ -406,7 +406,7 @@ export default async function Home() {
                     key={scenario}
                     className="flex items-start gap-3 rounded-[22px] border border-border bg-card p-4"
                   >
-                    <span className="mt-1 flex size-5 items-center justify-center rounded-full bg-foreground text-background">
+                    <span className="mt-1 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <ArrowRight className="size-3" />
                     </span>
                     <p className="text-base leading-6 text-muted-foreground">{scenario}</p>
@@ -462,9 +462,9 @@ export default async function Home() {
               <Link
                 href="/sign-up"
                 className={buttonVariants({
-                  variant: "secondary",
+                  variant: "default",
                   size: "lg",
-                  className: "h-11 border-white/20 bg-background text-foreground hover:bg-background/90",
+                  className: "h-11 px-5 text-sm",
                 })}
               >
                 Get started
