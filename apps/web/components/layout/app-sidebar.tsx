@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import {
   CalendarDays,
   Calculator,
   CircleDollarSign,
+  Ellipsis,
   FileText,
   House,
   Landmark,
@@ -45,9 +47,19 @@ const navigation = [
   ...navigationGroups.flatMap((group) => group.items),
   settingsItem,
 ];
+const mobilePrimaryNavigation = navigation.filter((item) =>
+  ["/dashboard", "/planning", "/statements", "/accounts"].includes(item.href),
+);
+const mobileMoreNavigation = navigation.filter(
+  (item) => !mobilePrimaryNavigation.includes(item),
+);
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreActive = mobileMoreNavigation.some((item) =>
+    pathname.startsWith(item.href),
+  );
   const desktopLink = (item: (typeof navigation)[number]) => {
     const active = pathname.startsWith(item.href);
     const Icon = item.icon;
@@ -100,9 +112,38 @@ export function AppSidebar() {
       </aside>
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch overflow-x-auto border-t bg-card/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch border-t bg-card/95 px-1 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur lg:hidden"
       >
-        {navigation.map((item) => {
+        {moreOpen ? (
+          <div
+            id="mobile-more-menu"
+            className="absolute inset-x-3 bottom-[calc(100%+0.5rem)] grid grid-cols-2 gap-1 rounded-xl border bg-card p-2 shadow-lg"
+          >
+            {mobileMoreNavigation.map((item) => {
+              const Icon = item.icon;
+              const active = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  data-tour-href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => setMoreOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium",
+                    active
+                      ? "bg-primary/10 text-primary-ink"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  <Icon aria-hidden="true" className="size-4 shrink-0" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
+        {mobilePrimaryNavigation.map((item) => {
           const active = pathname.startsWith(item.href);
           const Icon = item.icon;
           return (
@@ -113,7 +154,7 @@ export function AppSidebar() {
               aria-current={active ? "page" : undefined}
               aria-label={item.label}
               className={cn(
-                "flex min-w-[4rem] flex-1 flex-col items-center gap-1 rounded-md px-0.5 py-2 text-[9px] font-medium sm:text-[10px]",
+                "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-0.5 py-2 text-[9px] font-medium sm:text-[10px]",
                 active ? "text-primary-ink" : "text-muted-foreground",
               )}
             >
@@ -132,6 +173,20 @@ export function AppSidebar() {
             </Link>
           );
         })}
+        <button
+          type="button"
+          aria-label="More navigation"
+          aria-expanded={moreOpen}
+          aria-controls="mobile-more-menu"
+          onClick={() => setMoreOpen((open) => !open)}
+          className={cn(
+            "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-md px-0.5 py-2 text-[9px] font-medium sm:text-[10px]",
+            moreActive || moreOpen ? "text-primary-ink" : "text-muted-foreground",
+          )}
+        >
+          <Ellipsis aria-hidden="true" className="size-4 shrink-0" />
+          <span>More</span>
+        </button>
       </nav>
     </>
   );
