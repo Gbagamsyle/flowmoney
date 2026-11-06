@@ -8,7 +8,7 @@ import { Button } from "@flowmoney/ui/components/button";
 import { BrandMark } from "@/components/brand-mark";
 import flowIllustration from "@/assets/flow.png";
 import { formatMoney } from "@/lib/format-money";
-import { CURRENCIES, suggestCurrency, type CurrencyCode } from "@/lib/currencies";
+import { CURRENCIES, type CurrencyCode } from "@/lib/currencies";
 import { trackProductEventOnce } from "@/lib/analytics";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -85,8 +85,11 @@ export function OnboardingFlow() {
           return;
         }
 
-        const suggestedCurrency = suggestCurrency(navigator.language);
-        setCurrency(user.currencyConfirmedAt && user.preferredCurrency ? user.preferredCurrency : suggestedCurrency);
+        setCurrency(
+          user.currencyConfirmedAt && user.preferredCurrency
+            ? user.preferredCurrency
+            : "NGN",
+        );
         const savedStep = Number(window.localStorage.getItem("flowmoney:onboarding-step-v2") ?? "0");
         setStep(Number.isInteger(savedStep) && savedStep >= 0 && savedStep <= 5 ? savedStep : 0);
         setReady(true);
@@ -318,7 +321,7 @@ export function OnboardingFlow() {
               <div className="space-y-2">
                 <p className="text-sm font-medium text-primary-ink">Step 1 · Your preference</p>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">What currency do you mainly use?</h1>
-                <p className="text-muted-foreground">We suggested {currency} based on your browser region. Confirm it or choose another currency; you can change it later in Settings.</p>
+                <p className="text-muted-foreground">We start with Nigerian naira (NGN). Choose the currency you mainly use; you can change it later in Settings.</p>
               </div>
               <label className="block space-y-2 text-sm font-medium" htmlFor="preferred-currency">
                 Primary currency
