@@ -23,7 +23,7 @@ Tell us whether each section’s purpose is clear. You can skip the tour at any 
 
 ## Send feedback
 
-Email [ogabasyle@gmail.com](mailto:ogabasyle@gmail.com?subject=FlowMoney%20alpha%20feedback).
+Use Settings → Help & feedback to send a message from inside FlowMoney, or email [ogabasyle@gmail.com](mailto:ogabasyle@gmail.com?subject=FlowMoney%20alpha%20feedback).
 Describe the page, what you tried, what you expected and what happened. Include your browser/device,
 but leave out passwords, bank credentials, account numbers and raw statements.
 

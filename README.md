@@ -144,6 +144,10 @@ The Playwright journey is available with `pnpm --filter @flowmoney/web test:e2e`
 
 The API user-service suite also covers verified-email recovery, non-relinking after deletion, financial-data deletion, and repeated deletion: `pnpm --filter @flowmoney/api test -- src/users/users.service.spec.ts`.
 
+### In-app feedback email
+
+The signed-in Settings → Help & feedback form sends messages through Resend. Set `RESEND_API_KEY` and replace the example `FEEDBACK_FROM_EMAIL` with an address on a domain verified with Resend in the web app's server environment. `FEEDBACK_TO_EMAIL` is optional and defaults to `ogabasyle@gmail.com`. These are server-only variables; do not prefix them with `NEXT_PUBLIC_`. Without valid email configuration, users are shown the direct email fallback.
+
 ## Current implementation and next milestones
 
 | Area | Current state | Next work |
